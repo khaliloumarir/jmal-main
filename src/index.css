@@ -1,0 +1,172 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen",
+    "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue",
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
+    monospace;
+}
+
+@layer base {
+  /* * {
+    font-family: "Roboto sans-serif";
+  } */
+  * {
+    font-family: Roboto;
+  }
+  button {
+    @apply font-medium text-[#FFFFFF] leading-[16px] tracking-[1.25px] uppercase sm:px-4 sm:py-3  px-2 rounded-sm py-2 bg-main;
+    font-size: 14px;
+    box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+  }
+  p,
+  a,
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    @apply text-[#2B3239];
+  }
+  h1 {
+    @apply font-light lg:lg-h1 md:md-h1 h1 leading-[56px] tracking-[0px] md:leading-[72px] md:tracking-[-0.5px] lg:leading-[112px] lg:tracking-[-1.5px];
+  }
+  h6 {
+    font-family: Roboto;
+    font-style: normal;
+    font-weight: 500;
+    font-size: 20px;
+    line-height: 24px;
+    /* identical to box height, or 120% */
+
+    letter-spacing: 0.15px;
+  }
+  h4 {
+    font-style: normal;
+    font-weight: normal;
+    font-size: 34px;
+    line-height: 36px;
+  }
+  p {
+    /* Body 1 */
+    font-family: Roboto;
+    font-style: normal;
+    font-weight: normal;
+    font-size: 16px;
+    line-height: 24px;
+    /* or 150% */
+
+    letter-spacing: 0.5px;
+  }
+}
+
+@layer utilities {
+  .searchBar {
+    @apply md:shadow;
+    border: 0.5px solid #8f8f8f;
+  }
+  .shadow {
+    filter: drop-shadow(0px 4px 15px rgba(0, 0, 0, 0.25));
+    border: 0.5px solid #8f8f8f;
+  }
+  .lg-h1 {
+    font-size: 96px;
+  }
+  .md-h1 {
+    font-size: 60px;
+  }
+  .h1 {
+    font-size: 48px;
+  }
+  .sample {
+    overflow: hidden;
+    position: relative;
+    @apply rounded-full;
+  }
+  .sample-img {
+    position: absolute;
+    top: 0px;
+  }
+  .Addshadow {
+    box-shadow: 0px 3px 13px rgba(0, 0, 0, 0.25);
+  }
+  .addProduct {
+    font-family: Roboto;
+    font-style: normal;
+    font-weight: 500;
+    font-size: 34px;
+    line-height: 36px;
+    /* or 106% */
+  }
+  .overlineElement {
+    font-style: normal;
+    font-weight: 500;
+    font-size: 10px;
+    line-height: 16px;
+    /* or 160% */
+
+    text-align: center;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+  }
+  .instruction {
+    font-style: normal;
+    font-weight: 500;
+    font-size: 10px;
+    line-height: 16px;
+    /* or 160% */
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+  }
+  .headerElement {
+    font-family: Roboto;
+    font-style: normal;
+    font-weight: 500;
+    font-size: 14px;
+    line-height: 24px;
+    /* identical to box height, or 171% */
+
+    letter-spacing: 0.15px;
+  }
+  .resend {
+    font-style: normal;
+    font-weight: 300;
+    font-size: 14px;
+    line-height: 24px;
+    /* identical to box height, or 171% */
+
+    letter-spacing: 0.15px;
+    text-decoration-line: underline;
+  }
+
+  .productName {
+    font-style: normal;
+    font-weight: 600;
+    font-size: 25.7907px;
+    line-height: 19px;
+    /* identical to box height, or 73% */
+
+    letter-spacing: 0.195384px;
+  }
+  .option {
+    font-style: normal;
+    font-weight: normal;
+    line-height: 140%;
+    /* identical to box height, or 18px */
+
+    text-align: center;
+    letter-spacing: 0.390768px;
+  }
+  .error {
+    @apply text-[#FF0000];
+  }
+}
