@@ -27,10 +27,10 @@ function Product({ product, createProduct, channelName }) {
                         <p className="font-bold">{product["Price"]} per unit</p>
                     </li>
                     <li>
-                        <p className="text-[#717171] text-sm ">From {product["channelName"]}</p>
+                        <p className="text-[#717171] text-sm ">From <span className="text-main" > {product["channelName"]}</span></p>
                     </li>
                     <li>
-                        <p className="text-[#717171] text-sm"> 22-07-2022,16:40:59</p>
+                        <p className="text-[#717171] text-sm">{`${new Date(product["date"]).toDateString()}`}</p>
                     </li>
                 </ul>
                 <i className="self-end cursor-pointer text-[#545454] border-[#b5b5b5] hover:text-main mb-4 inline-flex justify-center items-center w-[28px] h-[28px] rounded-full border-[0.5px] hover:border-main  active:text-main active:border-main ">
