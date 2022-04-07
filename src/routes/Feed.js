@@ -13,6 +13,7 @@ import { useQuery, useInfiniteQuery } from "react-query";
 import { checkConnection, getGroups, validMessages } from "../helpers";
 
 function Feed(props) {
+  const params = useParams();
   async function fetchProducts({ pageParam = 0 }) {
     const algorithmResult = await getGroups(params, props, pageParam);
     const { productsList, nextBatch } = await validMessages(
@@ -34,19 +35,25 @@ function Feed(props) {
     fetchNextPage,
     isFetching,
     isFetchingNextPage,
-  } = useInfiniteQuery("products", fetchProducts, {
-    enabled: false,
-    getNextPageParam: (lastPage, pages) => {
-      const lastElement = pages[pages.length - 1];
-      //if no product has been retrieved, then there is no more products to fetch
-      if (lastElement?.productsList?.length) {
-        return pages[pages.length - 1].nextBatch;
-      } else {
-        return undefined;
-      }
-    },
-  });
+  } = useInfiniteQuery(
+    `${params.channel ? params.channel : "santochi1337"}`,
+    fetchProducts,
+    {
+      enabled: false,
+      cacheTime: 0,
+      getNextPageParam: (lastPage, pages) => {
+        const lastElement = pages[pages.length - 1];
+        //if no product has been retrieved, then there is no more products to fetch
+        if (lastElement?.productsList?.length) {
+          return pages[pages.length - 1].nextBatch;
+        } else {
+          return undefined;
+        }
+      },
+    }
+  );
   const observer = useRef();
+  const [filteredData, setFilteredData] = useState();
   const lastElementOfProductsRef = useCallback(
     (node) => {
       // this function auto refetch next batch of products when the last element is getting viewed
@@ -65,7 +72,6 @@ function Feed(props) {
   );
 
   const navigate = useNavigate();
-  const params = useParams();
   const [isClientLoaded, setIsClientLoaded] = useState(false);
 
   useEffect(() => {
@@ -89,7 +95,7 @@ function Feed(props) {
     setDate(parseInt(event.target.value));
   };
   const [loadingNewDate, setLoadingNewDate] = useState(false);
-  const [filteredData, setFilteredData] = useState();
+  const [category, setCategory] = useState("");
   useEffect(() => {
     if (data) {
       if (DateFilter > 0) {
@@ -125,7 +131,30 @@ function Feed(props) {
       }
     }
   }, [data, DateFilter]);
-
+  useEffect(() => {
+    if (category.length) {
+      function filterDataByCategory() {
+        const finalProductsList = [];
+        filteredData.forEach(({ productsList, nextBatch }) => {
+          if (productsList) {
+            const newData = productsList.filter((productItem) => {
+              if (category == productItem.Category) {
+                return true;
+              }
+            });
+            if (newData.length) {
+              finalProductsList.push({
+                productsList: [...newData],
+                nextBatch,
+              });
+            }
+          }
+        });
+        return finalProductsList;
+      }
+      setFilteredData(filterDataByCategory());
+    }
+  }, [category, filteredData]);
   function render() {
     if (isClientLoaded) {
       if (loadingNewDate) {
@@ -148,11 +177,15 @@ function Feed(props) {
               <div className="grid lg:grid-cols-4 sm:grid-cols-3 grid-cols-1 sm:m-0 my-6">
                 {filteredData?.map(({ productsList }, index) => {
                   return (
-                    <React.Fragment key={index}>
+                    <React.Fragment key={Math.floor(Math.random() * 9999)}>
                       {productsList?.map((item, itemIndex) => {
                         if (itemIndex + 1 === productsList.length) {
                           return (
-                            <div ref={lastElementOfProductsRef}>
+                            //FIXME: Change key from math rand to uuid
+                            <div
+                              key={Math.floor(Math.random() * 9999)}
+                              ref={lastElementOfProductsRef}
+                            >
                               <Product
                                 product={item}
                                 key={Math.floor(Math.random() * 9999)}
@@ -161,7 +194,7 @@ function Feed(props) {
                           );
                         } else {
                           return (
-                            <div>
+                            <div key={Math.floor(Math.random() * 9999)}>
                               <Product
                                 product={item}
                                 key={Math.floor(Math.random() * 9999)}

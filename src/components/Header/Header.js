@@ -27,7 +27,7 @@ export default function Header() {
           <ul className="flex lg:justify-between justify-around  items-center">
             {navigation.map((item) => {
               return (
-                <li className="cursor-pointer">
+                <li key={item.url} className="cursor-pointer">
                   <a>{item.name}</a>
                 </li>
               );

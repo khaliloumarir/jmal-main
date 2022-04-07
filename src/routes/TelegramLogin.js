@@ -3,7 +3,10 @@ import { connect } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { apiId, apiHash } from "../config";
 import { createClient, createSession } from "../actions";
-
+import PhoneInput from "react-phone-number-input";
+import Snackbar from "@mui/material/Snackbar";
+import Alert from "@mui/material/Alert";
+import "react-phone-number-input/style.css";
 function TelegramLogin(props) {
   useEffect(() => {
     createSession("");
@@ -18,6 +21,14 @@ function TelegramLogin(props) {
   const [isCodeViaApp, setIsCodeViaApp] = useState();
   const [client, setClient] = useState();
 
+  const [openSnackBar, setOpenSnackBar] = useState(false);
+  const [signInError, setSignInError] = useState("");
+  const handleClose = (event, reason) => {
+    if (reason === "clickaway") {
+      return;
+    }
+    setOpenSnackBar(false);
+  };
   useEffect(() => {
     // if(!props.firebase.auth.uid){
     //    redirect to authentication
@@ -47,21 +58,29 @@ function TelegramLogin(props) {
 
               setClient(client);
 
-              const { phoneCodeHash, isCodeViaApp } = await client.sendCode(
-                { apiHash, apiId },
-                number
-              );
-              setPhoneCodeHash(phoneCodeHash);
-              setIsCodeViaApp(isCodeViaApp);
-              setStages(1);
+              try {
+                const { phoneCodeHash, isCodeViaApp } = await client.sendCode(
+                  { apiHash, apiId },
+                  number
+                );
+                setPhoneCodeHash(phoneCodeHash);
+                setIsCodeViaApp(isCodeViaApp);
+                setStages(1);
+              } catch (err) {
+                setSignInError(err.message);
+                setOpenSnackBar(true);
+              }
             }}
           >
             <p>Insert your Number </p>
-            <input
-              className={`w-full border-[0.5px] border-[#C3C8BF] rounded-md py-2 px-4  `}
+            <PhoneInput
+              placeholder="Enter phone number"
               value={number}
-              onChange={(e) => setNumber(e.target.value)}
-              placeholder={"Insert your number"}
+              onChange={setNumber}
+              countries={["MA"]}
+              defaultCountry={"MA"}
+              className="w-full border-[0.5px] border-[#C3C8BF] rounded-md py-2 px-4"
+              labels={{ MA: "Maroc" }}
             />
             <button>Generate Code</button>
           </form>
@@ -85,7 +104,7 @@ function TelegramLogin(props) {
                 console.log("You should now be connected.");
                 props.createSession(client.session.save());
                 props.createClient(client);
-                navigate("../feed");
+                navigate("/");
               } catch (err) {
                 if (err.errorMessage === "SESSION_PASSWORD_NEEDED") {
                   setStages(2);
@@ -157,6 +176,20 @@ function TelegramLogin(props) {
 
         {render()}
       </section>
+      <Snackbar
+        open={openSnackBar}
+        autoHideDuration={3000}
+        onClose={handleClose}
+        anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
+      >
+        <Alert
+          variant="filled"
+          severity={signInError.length ? "error" : "success"}
+          sx={{ width: "100%" }}
+        >
+          {signInError.length ? signInError : "Verification Code has been sent"}
+        </Alert>
+      </Snackbar>
     </div>
   );
 }

@@ -1,7 +1,8 @@
 import { apiHash, apiId } from "../config";
+import validator from "validator";
 export async function checkConnection(props, navigate, setIsClientLoaded) {
   if (!props.client) {
-    if (props.session) {
+    if (props.session.length) {
       console.log("creating a new client...");
       const session = new window.telegram.sessions.StringSession(props.session);
       const client = new window.telegram.TelegramClient(
@@ -18,10 +19,13 @@ export async function checkConnection(props, navigate, setIsClientLoaded) {
         props.createClient(client);
         setIsClientLoaded(true);
       } else {
-        navigate("../telegram");
+        props.createSession("");
+        navigate("/");
+        setIsClientLoaded(true);
       }
     } else {
-      navigate("../telegram");
+      navigate("/");
+      setIsClientLoaded(true);
     }
   } else {
     setIsClientLoaded(true);
@@ -84,7 +88,11 @@ export function filterByCategory(data, category) {
 
 export function getPictureData(item, client) {
   return new Promise(async (resolve, reject) => {
-    if (item.media.document) {
+    //contains videos
+    if (
+      item.media.document &&
+      item.media.document.mimeType.split("/")[0] !== "video"
+    ) {
       const { document } = item.media;
       const picture = await client.invoke(
         new window.telegram.Api.upload.GetFile({
@@ -101,7 +109,11 @@ export function getPictureData(item, client) {
         })
       );
       return resolve(picture);
-    } else if (item.media.photo) {
+    }
+    // else
+
+    //contains photos only
+    else if (item.media.photo) {
       const { photo } = item.media;
       const picture = await client.invoke(
         new window.telegram.Api.upload.GetFile({
@@ -206,15 +218,13 @@ export class ProductClass {
     this.product = {};
     this.product.channelName = channelName;
   }
-  addData(keyName, data) {
-    this.product[keyName] = data;
-  }
   addKey(key, detail) {
     if (detail.indexOf(key) > -1) {
       const value = detail.split(key)[detail.split(key).length - 1].split(":")[
         detail.split(key).length - 1
       ];
-      this.product[key] = value;
+      this.product[key] =
+        typeof value === "string" ? validator.trim(value) : value;
     }
   }
   addProperty(keyName, value) {
@@ -230,7 +240,8 @@ export class ProductClass {
           [detail.split(element).length - 1].split(":")[
           detail.split(element).length - 1
         ];
-        this.product[element] = value;
+        this.product[element] =
+          typeof value === "string" ? validator.trim(value) : value;
       }
     }
   }
@@ -258,14 +269,36 @@ export async function validMessages(algorithmResult, props, channelName) {
       product.addKey("Minimum", productKey);
       product.addKey("Quantity", productKey);
       product.addKey("Sizes", productKey);
+      product.addKey("Channel", productKey);
       product.addProperty("date", convertToDate(group[lastElement].date));
       product.filter(requirementKeys, productKey);
     });
     if (product.isValid(requirementKeys)) {
       //add the first image
       const image = await getPictureData(group[lastElement], props.client);
-      product.addData("channelName", channelName);
-      product.addData("image", image.bytes);
+
+      product.addProperty("image", image.bytes);
+      //add description
+      const indexOfDescription =
+        group[group.length - 1].message.indexOf("Description");
+      if (indexOfDescription > -1) {
+        const descriptionMessage = group[lastElement].message
+          .slice(indexOfDescription)
+          .split("Description:");
+        product.addProperty(
+          "Description",
+          validator.trim(descriptionMessage[descriptionMessage.length - 1])
+        );
+      }
+      const mediasArray = [];
+      group.forEach(async (message, index) => {
+        if (!(index === group.length - 1)) {
+          //if media is a picture then add it
+
+          mediasArray.push(await getPictureData(message, props.client));
+        }
+      });
+      product.addProperty("media", mediasArray);
       productsList.push(product.product);
     }
   }

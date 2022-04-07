@@ -52,6 +52,7 @@ export default function BodySlidingShow({ title, showDetails, data, link }) {
         {data.map((item) => {
           return (
             <ProductShow
+              key={item.image}
               image={item.image}
               pricePerQuantity={item.pricePerQuantity}
               quantity={item.quantity}

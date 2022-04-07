@@ -4,6 +4,7 @@ import MenuIcon from "@mui/icons-material/Menu";
 import { Link } from "react-router-dom";
 import { connect } from "react-redux";
 import { useNavigate } from "react-router-dom";
+import { createSession } from "../../actions";
 function ConnectedHeader(props) {
   const navigate = useNavigate();
   return (
@@ -30,7 +31,8 @@ function ConnectedHeader(props) {
                 const result = await props.client.invoke(
                   new window.telegram.Api.auth.LogOut({})
                 );
-                navigate("/telegram");
+                props.createSession("");
+                navigate("/");
               } catch (err) {
                 console.log(err);
               }
@@ -73,4 +75,4 @@ function mapStateToProps(state) {
   };
 }
 
-export default connect(mapStateToProps, {})(ConnectedHeader);
+export default connect(mapStateToProps, { createSession })(ConnectedHeader);
