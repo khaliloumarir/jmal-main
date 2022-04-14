@@ -143,7 +143,10 @@ function ProductPage({ product }) {
 
       <div className="pt-6">
         <h6 className="py-2 productName">Description</h6>
-        <p> {currentProduct.Description ?? ""} </p>
+        <p className="whitespace-pre-line">
+          {" "}
+          {currentProduct.Description ?? ""}{" "}
+        </p>
       </div>
     </div>
   );

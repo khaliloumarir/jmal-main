@@ -6,7 +6,9 @@ import { useEffect } from "react";
 const Buffer = require("buffer/").Buffer;
 function Product({ product, createProduct, channelName }) {
   const navigate = useNavigate();
-
+  useEffect(() => {
+    console.log(product);
+  }, []);
   return (
     <div className="flex sm:flex-col border-[#EAEAEA] border-[0.5px] px-2  ">
       <a

@@ -233,14 +233,11 @@ export class ProductClass {
   filter(requirementKeys, detail) {
     for (let index = 0; index < requirementKeys.length; index++) {
       const element = requirementKeys[index];
-      if (detail.indexOf(element) > -1) {
+      if (detail.indexOf(element) > -1 && detail.indexOf(element) === 0) {
         //Product has that detail
-        const value = detail
-          .split(element)
-          [detail.split(element).length - 1].split(":")[
-          detail.split(element).length - 1
-        ];
-        this.product[element] =
+        const keyName = element.split(":")[0];
+        const value = detail.split(element).join("");
+        this.product[keyName] =
           typeof value === "string" ? validator.trim(value) : value;
       }
     }
@@ -249,7 +246,8 @@ export class ProductClass {
     let isValid = true;
 
     requirementKeys.forEach((key) => {
-      if (!Object.keys(this.product).includes(key)) {
+      const keyName = key.split(":")[0];
+      if (!Object.keys(this.product).includes(keyName)) {
         isValid = false;
       }
     });
@@ -259,7 +257,7 @@ export class ProductClass {
 
 export async function validMessages(algorithmResult, props, channelName) {
   const { groups, nextBatch } = algorithmResult;
-  const requirementKeys = ["Name", "Price", "Category", "Contact"];
+  const requirementKeys = ["Name:", "Price:", "Category:", "Contact:"];
   const productsList = [];
   for (let index = 0; index < groups.length; index++) {
     const group = groups[index];
@@ -280,15 +278,13 @@ export async function validMessages(algorithmResult, props, channelName) {
       product.addProperty("image", image.bytes);
       //add description
       const indexOfDescription =
-        group[group.length - 1].message.indexOf("Description");
+        group[group.length - 1].message.indexOf("Description:");
       if (indexOfDescription > -1) {
         const descriptionMessage = group[lastElement].message
           .slice(indexOfDescription)
-          .split("Description:");
-        product.addProperty(
-          "Description",
-          validator.trim(descriptionMessage[descriptionMessage.length - 1])
-        );
+          .split("Description:")
+          .join("");
+        product.addProperty("Description", descriptionMessage);
       }
       const mediasArray = [];
       group.forEach(async (message, index) => {

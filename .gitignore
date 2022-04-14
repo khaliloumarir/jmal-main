@@ -63,6 +63,14 @@ web_modules/
 .rts2_cache_es/
 .rts2_cache_umd/
 
+
+build/
+.firebaserc
+firebase.json
+.firebase/
+.vscode/
+
+
 # Optional REPL history
 .node_repl_history
 
