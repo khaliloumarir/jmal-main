@@ -6,8 +6,12 @@ import { createClient, createSession } from "../actions";
 import PhoneInput from "react-phone-number-input";
 import Snackbar from "@mui/material/Snackbar";
 import Alert from "@mui/material/Alert";
+import { useTranslation } from "react-i18next";
+import CircularProgress from "@mui/material/CircularProgress";
 import "react-phone-number-input/style.css";
+
 function TelegramLogin(props) {
+  const { t } = useTranslation();
   useEffect(() => {
     createSession("");
   }, []);
@@ -29,12 +33,8 @@ function TelegramLogin(props) {
     }
     setOpenSnackBar(false);
   };
-  useEffect(() => {
-    // if(!props.firebase.auth.uid){
-    //    redirect to authentication
-    // }
-  }, []);
 
+  const [sentDone, setSentDone] = useState(true);
   function render() {
     switch (stages) {
       case 0: {
@@ -43,6 +43,7 @@ function TelegramLogin(props) {
             className="space-y-4"
             onSubmit={async (evt) => {
               evt.preventDefault();
+              setSentDone(false);
               const session = new window.telegram.sessions.StringSession(
                 props.session
               );
@@ -70,11 +71,12 @@ function TelegramLogin(props) {
                 setSignInError(err.message);
                 setOpenSnackBar(true);
               }
+              setSentDone(true);
             }}
           >
-            <p>Insert your Number </p>
+            <p>{t("insert_your_number")} </p>
             <PhoneInput
-              placeholder="Enter phone number"
+              placeholder={t("enter_phone_number")}
               value={number}
               onChange={setNumber}
               countries={["MA"]}
@@ -82,7 +84,13 @@ function TelegramLogin(props) {
               className="w-full border-[0.5px] border-[#C3C8BF] rounded-md py-2 px-4"
               labels={{ MA: "Maroc" }}
             />
-            <button>Generate Code</button>
+            <button>
+              {sentDone ? (
+                t("generate_code")
+              ) : (
+                <CircularProgress size={28} color="inherit" />
+              )}
+            </button>
           </form>
         );
       }
@@ -93,6 +101,7 @@ function TelegramLogin(props) {
             className="space-y-4"
             onSubmit={async (evt) => {
               evt.preventDefault();
+              setSentDone(false);
               try {
                 const result = await client.invoke(
                   new window.telegram.Api.auth.SignIn({
@@ -101,7 +110,6 @@ function TelegramLogin(props) {
                     phoneCode: code,
                   })
                 );
-                console.log("You should now be connected.");
                 props.createSession(client.session.save());
                 props.createClient(client);
                 navigate("/");
@@ -110,16 +118,24 @@ function TelegramLogin(props) {
                   setStages(2);
                 }
               }
+              setSentDone(true);
             }}
           >
-            <p>Insert Verification code </p>
+            <p>{t("insert_verfication_code")}</p>
             <input
               className={`w-full border-[0.5px] border-[#C3C8BF] rounded-md py-2 px-4  `}
               value={code}
               onChange={(e) => setCode(e.target.value)}
-              placeholder={"Insert your Verification code"}
+              placeholder={t("insert_verfication_code")}
             />
-            <button>Login</button>
+            <button>
+              {" "}
+              {sentDone ? (
+                t("login")
+              ) : (
+                <CircularProgress size={28} color="inherit" />
+              )}
+            </button>
           </form>
         );
       }
@@ -130,6 +146,7 @@ function TelegramLogin(props) {
             className="space-y-4"
             onSubmit={async (evt) => {
               evt.preventDefault();
+              setSentDone(false);
               try {
                 const passwordSrpResult = await client.invoke(
                   new window.telegram.Api.account.GetPassword()
@@ -147,23 +164,28 @@ function TelegramLogin(props) {
               } catch (err) {
                 console.log(err);
               }
-
-              console.log("You should now be connected.");
-              console.log("the client : ", client);
+              setSentDone(true);
               props.createSession(client.session.save());
               props.createClient(client);
               navigate("../");
             }}
           >
-            <p>Insert Password </p>
+            <p>{t("insert_password")}</p>
             <input
               className={`w-full border-[0.5px] border-[#C3C8BF] rounded-md py-2 px-4  `}
               value={password}
               type="password"
               onChange={(e) => setPassword(e.target.value)}
-              placeholder={"Insert your password"}
+              placeholder={t("insert_password")}
             />
-            <button>Login</button>
+            <button>
+              {" "}
+              {sentDone ? (
+                t("login")
+              ) : (
+                <CircularProgress size={28} color="inherit" />
+              )}
+            </button>
           </form>
         );
       }
@@ -172,7 +194,7 @@ function TelegramLogin(props) {
   return (
     <div className="flex justify-center items-center h-screen sm:bg-background  ">
       <section className="flex flex-col bg-[#FFFFFF] sm:border-[1px] border-[#8f8f8f] w-full sm:w-1/2 lg:w-[30%] px-8 py-8 space-y-4">
-        <h4>Link telegram</h4>
+        <h4>{t("link_telegram")}</h4>
 
         {render()}
       </section>
@@ -187,7 +209,7 @@ function TelegramLogin(props) {
           severity={signInError.length ? "error" : "success"}
           sx={{ width: "100%" }}
         >
-          {signInError.length ? signInError : "Verification Code has been sent"}
+          {signInError.length ? signInError : t("verification_code_sent")}
         </Alert>
       </Snackbar>
     </div>

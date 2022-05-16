@@ -1,12 +1,10 @@
-import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import FavoriteIcon from "@mui/icons-material/Favorite";
 import MenuIcon from "@mui/icons-material/Menu";
 import { Link } from "react-router-dom";
 import { connect } from "react-redux";
-import { useNavigate } from "react-router-dom";
+
 import { createSession } from "../../actions";
 function ConnectedHeader(props) {
-  const navigate = useNavigate();
   return (
     <div className="bg-background py-6">
       <nav className="sm:flex justify-between  hidden ">
@@ -32,14 +30,14 @@ function ConnectedHeader(props) {
                   new window.telegram.Api.auth.LogOut({})
                 );
                 props.createSession("");
-                navigate("/");
+                window.location.reload();
               } catch (err) {
                 console.log(err);
               }
             }}
             className="cursor-pointer"
           >
-            <p className="text-[#FF0000] ">Logout</p>
+            <a className="text-[#FF0000] ">Logout</a>
           </li>
         </ul>
       </nav>

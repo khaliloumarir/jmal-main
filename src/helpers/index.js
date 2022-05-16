@@ -135,7 +135,6 @@ export function getPictureData(item, client) {
 }
 export async function getGroups(params, props, newBatch) {
   let nextBatch = newBatch;
-  console.log("next batch:", nextBatch);
   let found = false;
   let limit = 10;
   try {

@@ -4,16 +4,24 @@ import { createClient } from "../actions";
 import MenuIcon from "@mui/icons-material/Menu";
 import Product from "../components/routes/Feed/Product";
 import "../components/routes/Feed/feed.css";
-import { apiId, apiHash } from "../config";
 import ConnectedHeader from "../components/routes/ConnectedHeader";
 import { useNavigate, useParams } from "react-router-dom";
 import CircularProgress from "@mui/material/CircularProgress";
 import { useQuery, useInfiniteQuery } from "react-query";
+import ChannelDetails from "../components/routes/Feed/ChannelDetails";
+import NewHeader from "../components/NewHeader";
+import Menu from "@mui/material/Menu";
+import MenuItem from "@mui/material/MenuItem";
+import ListItemIcon from "@mui/material/ListItemIcon";
+import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
+import Check from "@mui/icons-material/Check";
 //helper
-import { checkConnection, getGroups, validMessages } from "../helpers";
+import { getGroups, validMessages } from "../helpers";
 
+import { useTranslation } from "react-i18next";
 function Feed(props) {
   const params = useParams();
+  const { t } = useTranslation();
   async function fetchProducts({ pageParam = 0 }) {
     const algorithmResult = await getGroups(params, props, pageParam);
     const { productsList, nextBatch } = await validMessages(
@@ -76,29 +84,74 @@ function Feed(props) {
     [isFetching, isFetchingNextPage, isLoading, filteredData]
   );
 
-  const navigate = useNavigate();
-  const [isClientLoaded, setIsClientLoaded] = useState(false);
+  const [categoryAnchor, setCategoryAnchor] = useState(null);
 
-  useEffect(() => {
-    //if client instance doesn't exist, but session does
-    //then connect client
-    //and create client state
-    //if client instance doesn't exist, nor session, then redirect to telegram
+  const openCategory = Boolean(categoryAnchor);
+  const handleClick = (event) => {
+    setCategoryAnchor(event.currentTarget);
+  };
+  const handleClose = () => {
+    setCategoryAnchor(null);
+  };
+  const [filterAnchor, setFilterAnchor] = useState(null);
 
-    checkConnection(props, navigate, setIsClientLoaded);
-  }, []);
+  const openFilter = Boolean(filterAnchor);
+  const handleClickFilter = (event) => {
+    setFilterAnchor(event.currentTarget);
+  };
+  const handleCloseFilter = () => {
+    setFilterAnchor(null);
+  };
+  const [channelData, setChannelData] = useState();
   useEffect(() => {
-    if (isClientLoaded) {
+    if (props.isClientLoaded) {
       if (props.client) {
+        async function getChannelData() {
+          const result = await props.client.invoke(
+            new window.telegram.Api.channels.GetFullChannel({
+              channel: params.channel,
+            })
+          );
+          const data = {
+            about: result.fullChat.about,
+            title: result.chats[0].title,
+            channelPhoto: result.fullChat.chatPhoto,
+          };
+          try {
+            const picture = await props.client.invoke(
+              new window.telegram.Api.upload.GetFile({
+                precise: true,
+                cdnSupported: true,
+                location: new window.telegram.Api.InputPhotoFileLocation({
+                  id: data.channelPhoto.id.value,
+                  accessHash: data.channelPhoto.accessHash.value,
+                  fileReference: data.channelPhoto.fileReference,
+                  thumbSize:
+                    data.channelPhoto.sizes[data.channelPhoto.sizes.length - 2]
+                      .type,
+                }),
+                offset: 0,
+                limit: 1048576,
+              })
+            );
+            data.channelPhoto = picture;
+          } catch (err) {
+            //TODO:Throw Error
+          }
+
+          setChannelData({ ...data });
+        }
+        if (params.channel !== "santochi1337") {
+          getChannelData();
+        }
+
         refetch();
       }
     }
-  }, [isClientLoaded]);
+  }, [props.isClientLoaded]);
 
   const [DateFilter, setDate] = useState(0);
-  const handleFilterByDate = (event) => {
-    setDate(parseInt(event.target.value));
-  };
+
   const [loadingNewDate, setLoadingNewDate] = useState(false);
   const [category, setCategory] = useState("");
   function filterDataByDate(useCategoryData) {
@@ -128,7 +181,6 @@ function Feed(props) {
           return true;
         }
       });
-      console.log("returned data of the filter and category:", returned);
       return returned;
     } else {
       //use data
@@ -209,9 +261,7 @@ function Feed(props) {
       }
     }
   }, [category, data]);
-  useEffect(() => {
-    console.log("filtered data changed to:", filteredData);
-  }, [filteredData]);
+
   useEffect(() => {
     //this logic handles the fetching in case there is no product in the page,
     //because auto fetching is set when the user reaches the last product
@@ -228,7 +278,7 @@ function Feed(props) {
   }, [isFetchingNextPage, isFetching]);
 
   function render() {
-    if (isClientLoaded) {
+    if (props.isClientLoaded) {
       if (loadingNewDate) {
         return (
           <div className="flex justify-center items-center h-[50vh] w-full text-main">
@@ -244,30 +294,24 @@ function Feed(props) {
           );
         } else {
           return (
-            <div>
+            <div className="my-2">
               {/* ==============Products section ============ */}
-              <div className="grid lg:grid-cols-4 sm:grid-cols-3 grid-cols-1 sm:m-0 my-6">
+              <div className="grid lg:grid-cols-5 gap-2 sm:grid-cols-3 grid-cols-1 sm:m-0 my-6">
                 {filteredData?.map((productItem, index) => {
                   if (index + 1 === filteredData.length) {
                     return (
                       //FIXME: Change key from math rand to uuid
                       <div
-                        key={Math.floor(Math.random() * 9999)}
+                        key={productItem.date.getTime()}
                         ref={lastElementOfProductsRef}
                       >
-                        <Product
-                          product={productItem}
-                          key={Math.floor(Math.random() * 9999)}
-                        />
+                        <Product product={productItem} />
                       </div>
                     );
                   } else {
                     return (
-                      <div key={Math.floor(Math.random() * 9999)}>
-                        <Product
-                          product={productItem}
-                          key={Math.floor(Math.random() * 9999)}
-                        />
+                      <div key={productItem.date.getTime()}>
+                        <Product product={productItem} />
                       </div>
                     );
                   }
@@ -283,6 +327,7 @@ function Feed(props) {
     } else {
       return (
         <div className="flex justify-center items-center h-[50vh] w-full text-main">
+          <h4>{t("connecting_to_telegram_servers")}</h4>
           <CircularProgress color="inherit" />
         </div>
       );
@@ -290,123 +335,119 @@ function Feed(props) {
   }
   return (
     <div>
-      <ConnectedHeader />
-      <section className="sm:flex items-center my-6 hidden">
-        {/* <i>
-          <MenuIcon />
-        </i>
-        <h6>Categories</h6> */}
-        <select
-          onChange={(e) => {
-            setCategory(e.target.value);
-          }}
-        >
-          <option value="shirts">shirts</option>
-          <option value="pants">pants</option>
-          <option value="afdada">afdada</option>
-        </select>
-      </section>
-      <hr className="border-[#C3C8BF] sm:w-[16%] my-6 hidden" />
-      <div className="flex ">
-        {/* ==============Filtering and categories section ============ */}
-
-        <div className="basis-[20%] sm:block hidden">
-          <form className="">
-            <p className="filterTitle">Date Listed</p>
-            <ul className="daysFilter  ">
-              <li>
-                <label
-                  htmlFor="All"
-                  className="flex items-center my-2 justify-between  w-[70%]"
-                >
-                  <span className="">All</span>
-                  <input
-                    onChange={handleFilterByDate}
-                    className=""
-                    value={0}
-                    id="All"
-                    name="filterByDay"
-                    type="radio"
-                    checked={DateFilter === 0}
-                  />
-                </label>
-              </li>
-              <li>
-                <label
-                  htmlFor="one"
-                  className="flex items-center my-2 justify-between  w-[70%]"
-                >
-                  <span className="">Last 24 hours</span>
-                  <input
-                    onChange={handleFilterByDate}
-                    className=""
-                    value={1}
-                    id="one"
-                    name="filterByDay"
-                    type="radio"
-                    checked={DateFilter === 1}
-                  />
-                </label>
-              </li>
-              <li>
-                <label
-                  htmlFor="three"
-                  className="flex items-center my-2 justify-between  w-[70%]"
-                >
-                  <span className="">Last 3 Days</span>
-                  <input
-                    onChange={handleFilterByDate}
-                    className=""
-                    value={3}
-                    checked={DateFilter === 3}
-                    id="three"
-                    name="filterByDay"
-                    type="radio"
-                  />
-                </label>
-              </li>
-              <li>
-                <label
-                  htmlFor="seven"
-                  className="flex items-center my-2 justify-between  w-[70%]"
-                >
-                  {" "}
-                  <span className="">Last 7 Days</span>
-                  <input
-                    onChange={handleFilterByDate}
-                    className=""
-                    value={7}
-                    checked={DateFilter === 7}
-                    id="seven"
-                    name="filterByDay"
-                    type="radio"
-                  />
-                </label>
-              </li>
-              <li>
-                <label
-                  htmlFor="thirty"
-                  className="flex items-center my-2 justify-between  w-[70%]"
-                >
-                  {" "}
-                  <span className="">Last 30 Days</span>
-                  <input
-                    onChange={handleFilterByDate}
-                    className=""
-                    value={30}
-                    checked={DateFilter === 30}
-                    id="thirty"
-                    name="filterByDay"
-                    type="radio"
-                  />
-                </label>
-              </li>
-            </ul>
-          </form>
+      <NewHeader />
+      <section className="flex  border-[1px] border-[#DFDFDD] p-2">
+        <div>
+          <p
+            id="basic-button"
+            className="hover:bg-[#f1f1f1] cursor-pointer px-2 py-3"
+            style={{ backgroundColor: openCategory ? "#d8d8d8" : undefined }}
+            aria-controls={openCategory ? "basic-menu" : undefined}
+            aria-haspopup="true"
+            aria-expanded={openCategory ? "true" : undefined}
+            onClick={handleClick}
+          >
+            {t("category")} <KeyboardArrowDownIcon />
+          </p>
+          <Menu
+            dense
+            id="basic-menu"
+            anchorEl={categoryAnchor}
+            open={openCategory}
+            onClose={handleClose}
+            MenuListProps={{
+              "aria-labelledby": "basic-button",
+            }}
+          >
+            {["Fashion", "Accessories", "Home gadgets and Electronics"].map(
+              (categoryName) => {
+                return (
+                  <MenuItem
+                    onClick={() => {
+                      setCategory(categoryName);
+                      handleClose();
+                    }}
+                  >
+                    {category === categoryName && (
+                      <ListItemIcon>
+                        <Check />
+                      </ListItemIcon>
+                    )}
+                    <p>{categoryName} </p>
+                  </MenuItem>
+                );
+              }
+            )}
+          </Menu>
         </div>
+        <div>
+          <p
+            className="hover:bg-[#f1f1f1] cursor-pointer px-2 py-3"
+            style={{ backgroundColor: openFilter ? "#d8d8d8" : undefined }}
+            id="filterDate"
+            aria-controls={openFilter ? "filterDate-menu" : undefined}
+            aria-haspopup="true"
+            aria-expanded={openFilter ? "true" : undefined}
+            onClick={handleClickFilter}
+          >
+            {t("filter_by_date")}
+            <KeyboardArrowDownIcon />
+          </p>
+          <Menu
+            dense
+            id="filterDate-menu"
+            anchorEl={filterAnchor}
+            open={openFilter}
+            onClose={handleCloseFilter}
+            MenuListProps={{
+              "aria-labelledby": "filterDate",
+            }}
+          >
+            {[
+              { name: t("all"), value: 0 },
+              { name: t("last_24_hours"), value: 1 },
+              {
+                name: t("last_3_days"),
+                value: 3,
+              },
+              {
+                name: t("last_7_days"),
+                value: 7,
+              },
+              {
+                name: t("last_30_days"),
+                value: 30,
+              },
+            ].map((item) => {
+              return (
+                <MenuItem
+                  onClick={() => {
+                    setDate(item.value);
+                    handleCloseFilter();
+                  }}
+                >
+                  {DateFilter === item.value && (
+                    <ListItemIcon>
+                      <Check />
+                    </ListItemIcon>
+                  )}
+                  <p>{item.name} </p>
+                </MenuItem>
+              );
+            })}
+          </Menu>
+        </div>
+      </section>
+      {channelData && filteredData?.length && (
+        <ChannelDetails
+          title={channelData.title}
+          photo={channelData.channelPhoto}
+          about={channelData.about}
+        />
+      )}
 
-        {render()}
-      </div>
+      <hr className="border-[#C3C8BF] sm:w-[16%] my-6 hidden" />
+      <div className="flex ">{render()}</div>
     </div>
   );
 }

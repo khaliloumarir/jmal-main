@@ -6,9 +6,7 @@ import { useEffect } from "react";
 const Buffer = require("buffer/").Buffer;
 function Product({ product, createProduct, channelName }) {
   const navigate = useNavigate();
-  useEffect(() => {
-    console.log(product);
-  }, []);
+
   return (
     <div className="flex sm:flex-col border-[#EAEAEA] border-[0.5px] px-2  ">
       <a
@@ -30,7 +28,11 @@ function Product({ product, createProduct, channelName }) {
           }}
           className="hover:underline cursor-pointer"
         >
-          <p className="font-light">{product["Name"]}</p>
+          <p className="font-light">
+            {product["Name"].length >= 30
+              ? product["Name"].substring(0, 30) + "..."
+              : product["Name"].substring(0, 30)}
+          </p>
         </a>
         <ul className="mt-4 mb-6 w-[70%]">
           <li>

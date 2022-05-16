@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import { checkConnection } from "./helpers";
 import { useNavigate } from "react-router-dom";
 import Feed from "./routes/Feed";
+import AuthIsRequired from "./components/AuthIsLoaded";
 import { createClient, createSession } from "./actions";
 function App(props) {
   const navigate = useNavigate();
@@ -16,7 +17,11 @@ function App(props) {
   function render() {
     if (isClientLoaded) {
       if (props.client?.checkAuthorization()) {
-        return <Feed />;
+        return (
+          <AuthIsRequired>
+            <Feed />
+          </AuthIsRequired>
+        );
       } else {
         return (
           <div className="App ">

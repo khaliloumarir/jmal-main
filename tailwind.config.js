@@ -4,7 +4,8 @@ module.exports = {
     colors: {
       main: "#008060",
       textButton: "#FFFFFF",
-      background:"#FBF7ED"
+      background: "#FBF7ED",
+      borderColor: "#DFDFDD",
     },
     extend: {},
   },

@@ -3,32 +3,26 @@ import Sizes from "../components/routes/addProductRoute/Sizes";
 import MediaUploader from "../components/routes/addProductRoute/MediaUploader";
 import { connect } from "react-redux";
 import { createClient, postChannelName, createSession } from "../actions";
-import { useNavigate } from "react-router-dom";
-import { checkConnection, errors } from "../helpers";
 //feed back and loading
 import CircularProgress from "@mui/material/CircularProgress";
 import Snackbar from "@mui/material/Snackbar";
 import Alert from "@mui/material/Alert";
 import CloseIcon from "@mui/icons-material/Close";
 import validator from "validator";
-
+import NewHeader from "../components/NewHeader";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { addProductSchema } from "../validations";
+
+import { useTranslation } from "react-i18next";
 function AddProduct(props) {
+  const { t } = useTranslation();
   const formOptions = { resolver: yupResolver(addProductSchema) };
   const { register, handleSubmit, reset, formState } = useForm(formOptions);
-  const navigate = useNavigate();
-  const [isClientLoaded, setIsClientLoaded] = useState(false);
   const [channels, setChannels] = useState([]);
   const [mediaError, setMediaError] = useState("");
-
   useEffect(() => {
-    checkConnection(props, navigate, setIsClientLoaded);
-  }, []);
-
-  useEffect(() => {
-    if (isClientLoaded) {
+    if (props.isClientLoaded) {
       async function getChannels() {
         try {
           const result = await props.client.invoke(
@@ -46,12 +40,13 @@ function AddProduct(props) {
             setChannels(channelsList);
           }
         } catch (err) {
-          console.log(err);
+          setError(err.message);
+          setOpenSnackBar(true);
         }
       }
       getChannels();
     }
-  }, [isClientLoaded]);
+  }, [props.isClientLoaded]);
 
   //snack bar
   const [openSnackBar, setOpenSnackBar] = useState(false);
@@ -77,7 +72,7 @@ function AddProduct(props) {
     Price: 0,
     Quantity: 0,
     Minimum: 0,
-    Category: "pants",
+    Category: "",
     Contact: "xxxxxxxx",
     Sizes: "",
     Description:
@@ -167,16 +162,23 @@ function AddProduct(props) {
       changeInput(reference, e.target.value);
     }
   }
+  const [categoryError, setCategoryError] = useState("");
   function submitToChannel(data) {
-    if (media.length) {
+    if (media.length && inputs.Category.length) {
       sendThroughClient();
     } else {
-      //throw snackbar error
-      setError("No media files exist");
+      if (!media.length) {
+        //throw snackbar error
+        setError("No media files exist");
+        setSentDone(true);
+        //update media error message for below the input
+        setMediaError("There must be at least 1 media");
+        //focus on the media
+      }
+      if (!inputs.Category.length) {
+        setCategoryError("Choose a category");
+      }
       setSentDone(true);
-      //update media error message for below the input
-      setMediaError("There must be at least 1 media");
-      //focus on the media
     }
   }
   function errorifyField(key) {
@@ -197,30 +199,39 @@ function AddProduct(props) {
     }
   }, [media]);
   function render() {
-    if (isClientLoaded) {
+    if (props.isClientLoaded) {
       return (
         <form onSubmit={handleSubmit(submitToChannel)}>
-          <h5 className="self-center addProduct">Add product to channel</h5>
+          <h5 className="self-center addProduct">
+            {t("add_product_to_channel")}
+          </h5>
           <hr className="border-[#C3C8BF]  my-4" />
           {/* ===================Product details=============== */}
           {/* ==============Channel Name============ */}
           <div>
-            <p className="headerElement py-4">Channel Name</p>
+            <p className="headerElement py-4">{t("channel_name")}</p>
 
             <select
+              className="px-2 py-4 rounded-md border-[1px] border-[#d8d8d8] hover:border-[#b3b3b3] focus:border-[#b3b3b3]"
               onChange={(e) => {
                 changeInput("channelName", e.target.value);
               }}
-              name="cars"
-              id="cars"
+              required
             >
+              <option value="" disabled selected hidden>
+                {t("choose_channel")}
+              </option>
               {channels.map((channel) => {
-                return <option value={channel}>{channel}</option>;
+                return (
+                  <option key={channel} value={channel}>
+                    {channel}
+                  </option>
+                );
               })}
             </select>
           </div>
           <div>
-            <p className="headerElement py-4">Product Name</p>
+            <p className="headerElement py-4">{t("product_name")}</p>
             <section className="mb-4">
               <input
                 {...register("Name")}
@@ -239,7 +250,7 @@ function AddProduct(props) {
           {/* ===================Price and quantity=============== */}
           <div className="grid grid-cols-2 gap-10">
             <div>
-              <p className="headerElement py-4">Price</p>
+              <p className="headerElement py-4">{t("price")}</p>
               <section className="mb-4">
                 <input
                   {...register("Price")}
@@ -256,7 +267,7 @@ function AddProduct(props) {
               </section>
             </div>
             <div>
-              <p className="headerElement py-4">Quantity</p>
+              <p className="headerElement py-4">{t("quantity")}</p>
               <section className="mb-4">
                 <input
                   value={inputs.Quantity}
@@ -274,7 +285,7 @@ function AddProduct(props) {
           <hr className="border-[#C3C8BF] " />
           {/* ===================Minimum Quantity=============== */}
           <div>
-            <p className="headerElement py-4">Minimum Quantity</p>
+            <p className="headerElement py-4">{t("minimum_quantity")}</p>
             <section className="mb-4">
               <input
                 value={inputs.Minimum}
@@ -289,10 +300,10 @@ function AddProduct(props) {
           </div>
           {/* ===================Category=============== */}
           <div>
-            <p className="headerElement py-4">Category</p>
+            <p className="headerElement py-4">{t("category")}</p>
             <section className="mb-4">
-              <input
-                {...register("Category")}
+              {/* <input
+                
                 value={inputs.Category}
                 onChange={(e) => {
                   handleText(e, "Category");
@@ -301,17 +312,42 @@ function AddProduct(props) {
                   "Category"
                 )} border-[0.5px] border-[#C3C8BF] rounded-md py-2 px-4  `}
               />
-              {renderErrorMessage("Category")}
+              {renderErrorMessage("Category")} */}
+              <select
+                className="px-2 py-4 rounded-md border-[1px] border-[#d8d8d8] hover:border-[#b3b3b3] focus:border-[#b3b3b3] "
+                onChange={(e) => {
+                  changeInput("Category", e.target.value);
+                }}
+                required
+              >
+                <option value="" disabled selected hidden>
+                  {t("choose_category")}
+                </option>
+                {["Fashion", "Accessories", "Home gadgets and Electronics"].map(
+                  (categoryName) => {
+                    return (
+                      <option key={categoryName} value={categoryName}>
+                        {categoryName}
+                      </option>
+                    );
+                  }
+                )}
+              </select>
             </section>
             <hr className="border-[#C3C8BF]" />
           </div>
           {/* ===================Sizes Fields=============== */}
-          <Sizes sizes={inputs.sizes} changeData={changeInput} />
+          <Sizes
+            sizeTitle={t("sizes")}
+            sizes={inputs.sizes}
+            changeData={changeInput}
+            sizeName={t("size")}
+          />
           {/* ===================Promotions Fields=============== */}
           {/* <Promotions /> */}
           {/* ===================Message Field=============== */}
           <div>
-            <p className="headerElement py-4">Description</p>
+            <p className="headerElement py-4">{t("description")}</p>
             <section className="mb-4">
               <textarea
                 value={inputs.Description}
@@ -327,7 +363,7 @@ function AddProduct(props) {
           </div>
           {/* ===================Contact Link=============== */}
           <div>
-            <p className="headerElement py-4">Contact Link</p>
+            <p className="headerElement py-4">{t("contact_link")}</p>
             <section className="mb-4">
               <input
                 {...register("Contact")}
@@ -348,7 +384,11 @@ function AddProduct(props) {
             {media.map((item, index) => {
               //item={data:bufferData,size:BufferSize}
               return (
-                <div className="relative ">
+                //FIXME: add uuid
+                <div
+                  key={Math.floor(Math.random() * item.size)}
+                  className="relative "
+                >
                   <span
                     onClick={() => {
                       const pictures = media.filter(
@@ -389,14 +429,11 @@ function AddProduct(props) {
             );
           })}
           <p className="error min-h-[50px]">{mediaError}</p>
-          <button
-            onClick={() => {
-              //"self-end py-3 px-3"
-            }}
-            className="self-end min-w-[174px] min-h-[55px]"
-          >
+
+          <p className="error min-h-[50px]">{categoryError}</p>
+          <button className="self-end min-w-[174px] min-h-[55px]">
             {sentDone ? (
-              "Send to channel"
+              t("send_to_channel")
             ) : (
               <CircularProgress size={28} color="inherit" />
             )}
@@ -413,6 +450,7 @@ function AddProduct(props) {
   }
   return (
     <>
+      <NewHeader />
       <div className="flex flex-col p-2 sm:mx-24 sm:my-24 sm:Addshadow sm:p-8 sm:rounded-md">
         {render()}
       </div>
@@ -428,7 +466,7 @@ function AddProduct(props) {
           severity={error.length ? "error" : "success"}
           sx={{ width: "100%" }}
         >
-          {error.length ? error : "Message has been sent successfully"}
+          {error.length ? error : t("product_added_success")}
         </Alert>
       </Snackbar>
     </>
