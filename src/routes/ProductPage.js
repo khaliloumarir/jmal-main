@@ -1,22 +1,19 @@
 import Carousel from "react-multi-carousel";
 import { connect } from "react-redux";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useLocation } from "react-router-dom";
 import validator from "validator";
 import NewHeader from "../components/NewHeader";
 import Dialog from "@mui/material/Dialog";
-
+import "react-multi-carousel/lib/styles.css";
 import { useTranslation } from "react-i18next";
 //,product:state.product
 const Buffer = require("buffer/").Buffer;
 function ProductPage({ product }) {
   const { t } = useTranslation();
   const { state } = useLocation();
-  useEffect(() => {
-    console.log(currentProduct);
-  }, []);
-  const [currentProduct, setCurrentProduct] = useState(state ? state : product);
-  const [otherMedia, setOtherMedia] = useState(currentProduct.media);
+
+  const currentProduct = useState(state ? state : product)[0];
   const [currentMedia, setCurrentMedia] = useState(currentProduct.image);
   const [openContactDialog, setOpenContactDialog] = useState(false);
   const handleContactDialogClose = () => {
@@ -35,27 +32,28 @@ function ProductPage({ product }) {
     },
     tablet: {
       breakpoint: { max: 1024, min: 640 },
-      items: 4,
+      items: 6,
     },
     mobile: {
       breakpoint: { max: 640, min: 0 },
-      items: 2,
+      items: 4,
     },
   };
   return (
-    <div className="lg:px-8 sm:px-4 px-2 ">
+    <div className="px-2 sm:px-4 lg:px-8">
       <NewHeader />
       <div className="border-t-[1px] border-borderColor py-2">
         <div className="grid sm:grid-cols-2 grid-cols-1 ">
           <section>
             <img
+              alt="main "
               src={`data:image/png;base64,${Buffer.from(currentMedia).toString(
                 "base64"
               )}`}
               className="object-contain md:h-[500px]"
             />
           </section>
-          <section className="flex flex-col sm:ml-4 my-2 space-y-4  ">
+          <section className="flex flex-col sm:px-4 my-2 space-y-4  ">
             <p className="productName">
               {currentProduct["Name"].length >= 30
                 ? currentProduct["Name"].substring(0, 30) + "..."
@@ -134,30 +132,32 @@ function ProductPage({ product }) {
           </section>
           <Carousel
             containerClass="sm:col-span-2 my-2 "
-            itemClass="even:mx-2"
+            itemClass="even:mx-2 "
             swipeable={true}
             transitionDuration={0}
             responsive={responsive}
           >
             <img
+              alt={`mini main `}
               onClick={() => {
                 setCurrentMedia(currentProduct.image);
               }}
               src={`data:image/png;base64,${Buffer.from(
                 currentProduct.image
               ).toString("base64")}`}
-              className="object-contain cursor-pointer  h-[150px] "
+              className="object-contain cursor-pointer h-[100px] "
             />
-            {otherMedia?.map((item) => {
+            {currentProduct?.media?.map((item, index) => {
               return (
                 <img
+                  alt={`other media  ${index}`}
                   src={`data:image/png;base64,${Buffer.from(
                     item.bytes
                   ).toString("base64")}`}
                   onClick={() => {
                     setCurrentMedia(item.bytes);
                   }}
-                  className="object-contain cursor-pointer h-[150px] "
+                  className="object-contain cursor-pointer h-[100px]"
                 />
               );
             })}
@@ -182,11 +182,6 @@ function ProductPage({ product }) {
   );
 }
 function mapStateToProps(state) {
-  console.log({
-    product: state.product,
-    client: state.client,
-    session: state.session,
-  });
   return {
     product: state.product,
     client: state.client,

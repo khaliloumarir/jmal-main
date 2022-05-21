@@ -4,4 +4,6 @@ export const addProductSchema = yup.object().shape({
   Price: yup.number().required().positive().integer(),
   Contact: yup.string().required().min(1),
   Media: yup.array().min(1),
+  Quantity: yup.number().positive().integer(),
+  Minimum: yup.number().positive().integer(),
 });

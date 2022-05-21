@@ -9,7 +9,8 @@ import Alert from "@mui/material/Alert";
 import { useTranslation } from "react-i18next";
 import CircularProgress from "@mui/material/CircularProgress";
 import "react-phone-number-input/style.css";
-
+import { Api, TelegramClient, sessions } from "telegram";
+import { computeCheck } from "telegram/Password";
 function TelegramLogin(props) {
   const { t } = useTranslation();
   useEffect(() => {
@@ -22,7 +23,6 @@ function TelegramLogin(props) {
   const [password, setPassword] = useState("");
   const [code, setCode] = useState("");
   const [phoneCodeHash, setPhoneCodeHash] = useState("");
-  const [isCodeViaApp, setIsCodeViaApp] = useState();
   const [client, setClient] = useState();
 
   const [openSnackBar, setOpenSnackBar] = useState(false);
@@ -44,28 +44,24 @@ function TelegramLogin(props) {
             onSubmit={async (evt) => {
               evt.preventDefault();
               setSentDone(false);
-              const session = new window.telegram.sessions.StringSession(
-                props.session
-              );
-              const client = new window.telegram.TelegramClient(
-                session,
-                apiId,
-                apiHash,
-                {
-                  connectionRetries: 5,
-                }
-              );
+              setOpenSnackBar(false);
+              setSignInError("");
+              const session = new sessions.StringSession(props.session);
+              const client = new TelegramClient(session, apiId, apiHash, {
+                connectionRetries: 5,
+              });
               await client.connect();
 
               setClient(client);
 
               try {
-                const { phoneCodeHash, isCodeViaApp } = await client.sendCode(
+                const { phoneCodeHash } = await client.sendCode(
                   { apiHash, apiId },
                   number
                 );
                 setPhoneCodeHash(phoneCodeHash);
-                setIsCodeViaApp(isCodeViaApp);
+
+                setOpenSnackBar(true);
                 setStages(1);
               } catch (err) {
                 setSignInError(err.message);
@@ -102,9 +98,11 @@ function TelegramLogin(props) {
             onSubmit={async (evt) => {
               evt.preventDefault();
               setSentDone(false);
+              setOpenSnackBar(false);
+              setSignInError("");
               try {
-                const result = await client.invoke(
-                  new window.telegram.Api.auth.SignIn({
+                await client.invoke(
+                  new Api.auth.SignIn({
                     phoneNumber: number,
                     phoneCodeHash: phoneCodeHash,
                     phoneCode: code,
@@ -114,6 +112,10 @@ function TelegramLogin(props) {
                 props.createClient(client);
                 navigate("/");
               } catch (err) {
+                if (err.errorMessage === "PHONE_CODE_INVALID") {
+                  setSignInError(t("PHONE_CODE_INVALID"));
+                  setOpenSnackBar(true);
+                }
                 if (err.errorMessage === "SESSION_PASSWORD_NEEDED") {
                   setStages(2);
                 }
@@ -129,7 +131,6 @@ function TelegramLogin(props) {
               placeholder={t("insert_verfication_code")}
             />
             <button>
-              {" "}
               {sentDone ? (
                 t("login")
               ) : (
@@ -147,27 +148,32 @@ function TelegramLogin(props) {
             onSubmit={async (evt) => {
               evt.preventDefault();
               setSentDone(false);
+              setOpenSnackBar(false);
+              setSignInError("");
               try {
                 const passwordSrpResult = await client.invoke(
-                  new window.telegram.Api.account.GetPassword()
+                  new Api.account.GetPassword()
                 );
-                const passwordSRPCheck =
-                  await window.telegram.helpers.getPasswordSrpCheck(
-                    passwordSrpResult,
-                    password
-                  );
+                const passwordSRPCheck = await computeCheck(
+                  passwordSrpResult,
+                  password
+                );
                 const authorization = await client.invoke(
-                  new window.telegram.Api.auth.CheckPassword({
+                  new Api.auth.CheckPassword({
                     password: passwordSRPCheck,
                   })
                 );
+                console.log("authorization state:", authorization);
+                props.createSession(client.session.save());
+                props.createClient(client);
+                navigate("../");
               } catch (err) {
-                console.log(err);
+                if (err.errorMessage === "PASSWORD_HASH_INVALID") {
+                  setSignInError(t("PASSWORD_HASH_INVALID"));
+                  setOpenSnackBar(true);
+                }
               }
               setSentDone(true);
-              props.createSession(client.session.save());
-              props.createClient(client);
-              navigate("../");
             }}
           >
             <p>{t("insert_password")}</p>
@@ -179,7 +185,6 @@ function TelegramLogin(props) {
               placeholder={t("insert_password")}
             />
             <button>
-              {" "}
               {sentDone ? (
                 t("login")
               ) : (
@@ -189,10 +194,12 @@ function TelegramLogin(props) {
           </form>
         );
       }
+      default:
+        return;
     }
   }
   return (
-    <div className="flex justify-center items-center h-screen sm:bg-background  ">
+    <div className=" px-2 sm:px-4 lg:px-8 flex justify-center items-center h-screen sm:bg-background  ">
       <section className="flex flex-col bg-[#FFFFFF] sm:border-[1px] border-[#8f8f8f] w-full sm:w-1/2 lg:w-[30%] px-8 py-8 space-y-4">
         <h4>{t("link_telegram")}</h4>
 

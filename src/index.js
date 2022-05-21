@@ -5,14 +5,12 @@ import App from "./App";
 import reportWebVitals from "./reportWebVitals";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import AddProduct from "./routes/AddProduct";
-import DemandProduct from "./routes/DemandProduct";
 import TelegramLogin from "./routes/TelegramLogin";
 import Feed from "./routes/Feed";
 import AuthIsRequired from "./components/AuthIsLoaded";
 import ProductPage from "./routes/ProductPage";
-import Authentication from "./routes/Authentication";
 import { Provider } from "react-redux";
-import { createStore, applyMiddleware, compose } from "redux";
+import { createStore, applyMiddleware } from "redux";
 import combinedReducers from "./reducers";
 import thunk from "redux-thunk";
 import { ReactReduxFirebaseProvider, getFirebase } from "react-redux-firebase";
@@ -23,11 +21,11 @@ import storage from "redux-persist/lib/storage";
 import { createFirestoreInstance, getFirestore } from "redux-firestore";
 import { QueryClientProvider, QueryClient } from "react-query";
 import { ReactQueryDevtools } from "react-query/devtools";
-import Example from "./routes/Example";
 import i18n from "i18next";
 import { initReactI18next } from "react-i18next";
 import LanguageDetector from "i18next-browser-languagedetector";
 import HttpApi from "i18next-http-backend";
+
 //i18
 i18n
   .use(initReactI18next)
@@ -77,7 +75,6 @@ ReactDOM.render(
         <QueryClientProvider client={queryClient}>
           <BrowserRouter>
             <Routes>
-              <Route path="/example" element={<Example />} />
               <Route path="/" element={<App />} />
               <Route
                 path="addproduct"
@@ -87,10 +84,7 @@ ReactDOM.render(
                   </AuthIsRequired>
                 }
               />
-              {/* <Route path="demandproduct" element={<DemandProduct />} /> */}
               <Route path="telegram" element={<TelegramLogin />} />
-
-              {/* TODO: Change the path=/ to contain a component that checks auth and sends to the right paths telegramLogin or feed or login then telegramLogin then feed or feed right away */}
               <Route
                 path=":channel"
                 element={

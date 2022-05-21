@@ -1,13 +1,11 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { connect } from "react-redux";
 import { createClient } from "../actions";
-import MenuIcon from "@mui/icons-material/Menu";
 import Product from "../components/routes/Feed/Product";
 import "../components/routes/Feed/feed.css";
-import ConnectedHeader from "../components/routes/ConnectedHeader";
-import { useNavigate, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import CircularProgress from "@mui/material/CircularProgress";
-import { useQuery, useInfiniteQuery } from "react-query";
+import { useInfiniteQuery } from "react-query";
 import ChannelDetails from "../components/routes/Feed/ChannelDetails";
 import NewHeader from "../components/NewHeader";
 import Menu from "@mui/material/Menu";
@@ -17,7 +15,7 @@ import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import Check from "@mui/icons-material/Check";
 //helper
 import { getGroups, validMessages } from "../helpers";
-
+import { Api } from "telegram";
 import { useTranslation } from "react-i18next";
 function Feed(props) {
   const params = useParams();
@@ -45,7 +43,7 @@ function Feed(props) {
     fetchProducts,
     {
       enabled: false,
-      cacheTime: 0,
+      cacheTime: 30000,
       getNextPageParam: (lastPage, pages) => {
         const lastElement = pages[pages.length - 1];
         let productsListEmptyNumber = 0;
@@ -81,7 +79,7 @@ function Feed(props) {
       });
       if (node) observer.current.observe(node);
     },
-    [isFetching, isFetchingNextPage, isLoading, filteredData]
+    [isFetching, isFetchingNextPage, isLoading, fetchNextPage, hasNextPage]
   );
 
   const [categoryAnchor, setCategoryAnchor] = useState(null);
@@ -108,7 +106,7 @@ function Feed(props) {
       if (props.client) {
         async function getChannelData() {
           const result = await props.client.invoke(
-            new window.telegram.Api.channels.GetFullChannel({
+            new Api.channels.GetFullChannel({
               channel: params.channel,
             })
           );
@@ -119,10 +117,10 @@ function Feed(props) {
           };
           try {
             const picture = await props.client.invoke(
-              new window.telegram.Api.upload.GetFile({
+              new Api.upload.GetFile({
                 precise: true,
                 cdnSupported: true,
-                location: new window.telegram.Api.InputPhotoFileLocation({
+                location: new Api.InputPhotoFileLocation({
                   id: data.channelPhoto.id.value,
                   accessHash: data.channelPhoto.accessHash.value,
                   fileReference: data.channelPhoto.fileReference,
@@ -152,7 +150,6 @@ function Feed(props) {
 
   const [DateFilter, setDate] = useState(0);
 
-  const [loadingNewDate, setLoadingNewDate] = useState(false);
   const [category, setCategory] = useState("");
   function filterDataByDate(useCategoryData) {
     const now = Math.floor(Date.now() / 1000);
@@ -176,6 +173,8 @@ function Feed(props) {
         if (dateFilter >= 86400) {
           if (Math.abs(now - date) <= dateFilter) {
             return true;
+          } else {
+            return false;
           }
         } else {
           return true;
@@ -203,8 +202,10 @@ function Feed(props) {
     data.pages.forEach(({ productsList }) => {
       if (productsList.length) {
         const newCategoryFilter = productsList.filter((productItem) => {
-          if (category == productItem.Category) {
+          if (category === productItem.Category) {
             return true;
+          } else {
+            return false;
           }
         });
         if (newCategoryFilter.length) {
@@ -228,6 +229,7 @@ function Feed(props) {
         }
       } else {
         if (category.length) {
+          newData = filterDataByCategory();
         } else {
           const cleanedData = [];
           data.pages.forEach(({ productsList }) => {
@@ -275,54 +277,52 @@ function Feed(props) {
         }
       }
     }
-  }, [isFetchingNextPage, isFetching]);
+  }, [
+    isFetchingNextPage,
+    isFetching,
+    fetchNextPage,
+    filteredData?.length,
+    hasNextPage,
+  ]);
 
   function render() {
     if (props.isClientLoaded) {
-      if (loadingNewDate) {
+      if (isLoading) {
         return (
           <div className="flex justify-center items-center h-[50vh] w-full text-main">
             <CircularProgress color="inherit" />
           </div>
         );
       } else {
-        if (isLoading) {
-          return (
-            <div className="flex justify-center items-center h-[50vh] w-full text-main">
-              <CircularProgress color="inherit" />
+        return (
+          <div className="my-2">
+            {/* ==============Products section ============ */}
+            <div className="grid lg:grid-cols-5 gap-2 sm:grid-cols-3 grid-cols-1 sm:m-0 my-6">
+              {filteredData?.map((productItem, index) => {
+                if (index + 1 === filteredData.length) {
+                  return (
+                    //FIXME: Change key from math rand to uuid
+                    <div
+                      key={productItem.date.getTime()}
+                      ref={lastElementOfProductsRef}
+                    >
+                      <Product product={productItem} />
+                    </div>
+                  );
+                } else {
+                  return (
+                    <div key={productItem.date.getTime()}>
+                      <Product product={productItem} />
+                    </div>
+                  );
+                }
+              })}
             </div>
-          );
-        } else {
-          return (
-            <div className="my-2">
-              {/* ==============Products section ============ */}
-              <div className="grid lg:grid-cols-5 gap-2 sm:grid-cols-3 grid-cols-1 sm:m-0 my-6">
-                {filteredData?.map((productItem, index) => {
-                  if (index + 1 === filteredData.length) {
-                    return (
-                      //FIXME: Change key from math rand to uuid
-                      <div
-                        key={productItem.date.getTime()}
-                        ref={lastElementOfProductsRef}
-                      >
-                        <Product product={productItem} />
-                      </div>
-                    );
-                  } else {
-                    return (
-                      <div key={productItem.date.getTime()}>
-                        <Product product={productItem} />
-                      </div>
-                    );
-                  }
-                })}
-              </div>
-              <div className="flex justify-center items-center my-16 w-full text-main">
-                {isFetchingNextPage && <CircularProgress color="inherit" />}
-              </div>
+            <div className="flex justify-center items-center my-16 w-full text-main">
+              {isFetchingNextPage && <CircularProgress color="inherit" />}
             </div>
-          );
-        }
+          </div>
+        );
       }
     } else {
       return (
@@ -334,9 +334,10 @@ function Feed(props) {
     }
   }
   return (
-    <div>
+    <div className="px-2 sm:px-4 lg:px-8">
       <NewHeader />
-      <section className="flex  border-[1px] border-[#DFDFDD] p-2">
+
+      <section className="flex items-center  border-[1px] border-[#DFDFDD] p-2">
         <div>
           <p
             id="basic-button"
@@ -363,6 +364,7 @@ function Feed(props) {
               (categoryName) => {
                 return (
                   <MenuItem
+                    key={categoryName}
                     onClick={() => {
                       setCategory(categoryName);
                       handleClose();
@@ -421,6 +423,7 @@ function Feed(props) {
             ].map((item) => {
               return (
                 <MenuItem
+                  key={item.name}
                   onClick={() => {
                     setDate(item.value);
                     handleCloseFilter();
@@ -438,6 +441,9 @@ function Feed(props) {
           </Menu>
         </div>
       </section>
+      {/* <div className="flex justify-center">
+        <ReplayIcon fontSize={"large"} />
+      </div> */}
       {channelData && filteredData?.length && (
         <ChannelDetails
           title={channelData.title}

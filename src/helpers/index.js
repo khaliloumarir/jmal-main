@@ -1,18 +1,13 @@
 import { apiHash, apiId } from "../config";
 import validator from "validator";
+import { Api, TelegramClient, sessions } from "telegram";
 export async function checkConnection(props, navigate, setIsClientLoaded) {
   if (!props.client) {
     if (props.session.length) {
-      console.log("creating a new client...");
-      const session = new window.telegram.sessions.StringSession(props.session);
-      const client = new window.telegram.TelegramClient(
-        session,
-        apiId,
-        apiHash,
-        {
-          connectionRetries: 5,
-        }
-      );
+      const session = new sessions.StringSession(props.session);
+      const client = new TelegramClient(session, apiId, apiHash, {
+        connectionRetries: 5,
+      });
 
       await client.connect();
       if (await client.checkAuthorization()) {
@@ -51,6 +46,8 @@ export function sortPerDate(messagesToShow) {
     const secondDate = convertToDate(b[b.length - 1]?.date);
     if (firstDate < secondDate) {
       return true;
+    } else {
+      return false;
     }
   });
   return messagesToShow;
@@ -65,6 +62,8 @@ export function filterByDate(data, days) {
     if (dateFilter >= 86400) {
       if (Math.abs(now - date) <= dateFilter) {
         return true;
+      } else {
+        return false;
       }
     } else {
       return true;
@@ -76,8 +75,10 @@ export function filterByDate(data, days) {
 export function filterByCategory(data, category) {
   const newData = data.filter((productItem) => {
     if (category.length) {
-      if (category == productItem.Category) {
+      if (category === productItem.Category) {
         return true;
+      } else {
+        return false;
       }
     } else {
       return true;
@@ -95,10 +96,10 @@ export function getPictureData(item, client) {
     ) {
       const { document } = item.media;
       const picture = await client.invoke(
-        new window.telegram.Api.upload.GetFile({
+        new Api.upload.GetFile({
           precise: false,
           cdnSupported: true,
-          location: new window.telegram.Api.InputDocumentFileLocation({
+          location: new Api.InputDocumentFileLocation({
             id: document.id.value,
             accessHash: document.accessHash.value,
             fileReference: document.fileReference,
@@ -116,10 +117,10 @@ export function getPictureData(item, client) {
     else if (item.media.photo) {
       const { photo } = item.media;
       const picture = await client.invoke(
-        new window.telegram.Api.upload.GetFile({
+        new Api.upload.GetFile({
           precise: true,
           cdnSupported: true,
-          location: new window.telegram.Api.InputPhotoFileLocation({
+          location: new Api.InputPhotoFileLocation({
             id: photo.id.value,
             accessHash: photo.accessHash.value,
             fileReference: photo.fileReference,
@@ -139,7 +140,7 @@ export async function getGroups(params, props, newBatch) {
   let limit = 10;
   try {
     const result = await props.client?.invoke(
-      new window.telegram.Api.messages.GetHistory({
+      new Api.messages.GetHistory({
         peer: params.channel ? params.channel : "santochi1337",
         offsetId: 0,
         offsetDate: 0,
@@ -182,12 +183,8 @@ export async function getGroups(params, props, newBatch) {
       } else {
         //if it doesn't then subtract the length of that group from totalOffset
         result.messages.forEach((message, index) => {
-          if (message.groupedId == groupId) {
+          if (message.groupedId === groupId) {
             if (!found) {
-              console.log(
-                "index of this group in the result object is:",
-                index
-              );
               nextBatch += index;
               found = true;
             }

@@ -31,5 +31,8 @@
   "last_7_days": "آخر 7 أيام",
   "last_30_days": "آخر 30 أيام",
   "choose_channel": "اختر شانيل",
-  "choose_category": "اختر الفئة"
+  "choose_category": "اختر الفئة",
+  "per_unit": "لمنتوج واحد",
+  "PHONE_CODE_INVALID": "رمز التحقق خطء المرجو اعادة التدخيل",
+  "PASSWORD_HASH_INVALID": "الرمز السري غير صحيح,المرجو اعادة المحاولة"
 }

@@ -1,56 +1,62 @@
 export const createSession = (session) => {
-  return (
-    {
-      type: "CREATE_SESSION",
-      payload: session
-    }
-  )
-}
+  return {
+    type: "CREATE_SESSION",
+    payload: session,
+  };
+};
 
 export const createClient = (client) => {
   return {
     type: "CREATE_CLIENT",
-    payload: client
-  }
-}
+    payload: client,
+  };
+};
 
 export const createProduct = (product) => {
   return {
     type: "CREATE_PRODUCT",
-    payload: product
-  }
-}
+    payload: product,
+  };
+};
 
 export const signIn = (credentials) => {
   return async (dispatch, getState, { getFirebase }) => {
-    const result = await getFirebase().login(credentials);
     try {
-
-    } catch (err) {
-
-    }
-    return getFirebase().login(credentials)
-      .then((res) => {
-        console.log("success")
-      }).catch(error => {
-        console.log(error)
-      })
-
-  }
-}
-
+      await getFirebase().login(credentials);
+    } catch (err) {}
+    return getFirebase()
+      .login(credentials)
+      .then((res) => {})
+      .catch((error) => {});
+  };
+};
 
 export const postChannelName = (channelName, uid) => {
   return async (dispatch, getState, { getFirestore, getFirebase }) => {
-    console.log("saving channel to database...")
-    const fireStore = await getFirestore()
+    const fireStore = await getFirestore();
     try {
-      await fireStore.collection("channels").doc(channelName).set({
-        owner: uid
-      })
-      console.log("successfully added channel ")
-    } catch (err) {
-      console.log(err)
-    }
-  }
-}
+      await fireStore
+        .collection("channels")
+        .doc(`${channelName}`)
+        .set({
+          owner: `${uid}`,
+          created_at: new Date(),
+        });
+    } catch (err) {}
+  };
+};
+//TODO:add the below
+// export const addUserToTg = (channelName, uid) => {
+//   return async (dispatch, getState, { getFirestore, getFirebase }) => {
+//     console.log("saving user to database...");
+//     const fireStore = await getFirestore();
+//     try {
+//       await fireStore.collection("users").doc(uid).set({
+//         created_at: new Date()
+//       });
+//       console.log("successfully added user");
+//     } catch (err) {
+//       console.log(err);
+//     }
+//   };
+// };

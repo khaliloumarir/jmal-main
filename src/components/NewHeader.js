@@ -1,14 +1,28 @@
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { connect } from "react-redux";
 import LogoutIcon from "@mui/icons-material/Logout";
 import { createSession } from "../actions";
+import Snackbar from "@mui/material/Snackbar";
+import Alert from "@mui/material/Alert";
+import { Api } from "telegram";
 function NewHeader(props) {
   const { t } = useTranslation();
+  const [openSnackBar, setOpenSnackBar] = useState(false);
+  const [snackbarError, setSnackbarError] = useState("");
+  const handleClose = (event, reason) => {
+    if (reason === "clickaway") {
+      return;
+    }
+    setOpenSnackBar(false);
+  };
+
   return (
     <div className="flex items-center py-6 justify-between">
       <Link className="" to="/">
         <img
+          alt="sella logo"
           src={"https://i.postimg.cc/Y9qwKpkv/Logo-1.png"}
           className="h-[40px] "
         />
@@ -21,23 +35,36 @@ function NewHeader(props) {
           </button>
         </Link>
 
-        <a
+        <i
           className="text-[#FF0000] cursor-pointer"
           onClick={async () => {
             try {
-              const result = await props.client.invoke(
-                new window.telegram.Api.auth.LogOut({})
-              );
+              await props.client.invoke(new Api.auth.LogOut({}));
               props.createSession("");
               window.location.reload();
             } catch (err) {
-              console.log(err);
+              setSnackbarError(err.errorMessage);
+              setOpenSnackBar(true);
             }
           }}
         >
           <LogoutIcon />
-        </a>
+        </i>
       </nav>
+      <Snackbar
+        open={openSnackBar}
+        autoHideDuration={3000}
+        onClose={handleClose}
+        anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
+      >
+        <Alert
+          variant="filled"
+          severity={snackbarError.length ? "error" : "success"}
+          sx={{ width: "100%" }}
+        >
+          {snackbarError.length ? snackbarError : t("verification_code_sent")}
+        </Alert>
+      </Snackbar>
     </div>
   );
 }

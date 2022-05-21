@@ -1,27 +1,27 @@
-import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 import { connect } from "react-redux";
 import { createProduct } from "../../../actions";
-import { useNavigate, Link } from "react-router-dom";
-import { useEffect } from "react";
-const Buffer = require("buffer/").Buffer;
+import { useNavigate } from "react-router-dom";
+
+import { useTranslation } from "react-i18next";
 function Product({ product, createProduct, channelName }) {
   const navigate = useNavigate();
-
+  const { t } = useTranslation();
   return (
-    <div className="flex sm:flex-col border-[#EAEAEA] border-[0.5px] px-2  ">
-      <a
+    <div className="flex sm:flex-col border-[#EAEAEA] border-[0.5px] px-2  py-2 ">
+      <section
         onClick={() => {
           createProduct(product);
           navigate("../product", { state: product });
         }}
       >
         <img
+          alt={`product ${product["Name"]}`}
           src={`data:image/png;base64,${product.image?.toString("base64")}`}
-          className="w-[225px] sm:h-[225px] object-contain self-center my-4"
+          className="sm:w-[225px] w-[150px] h-[150px]  sm:h-[225px] object-contain self-center "
         />
-      </a>
-      <section className="flex flex-col sm:ml-0 ml-2">
-        <a
+      </section>
+      <section className="flex flex-col sm:ml-0 px-2">
+        <section
           onClick={() => {
             createProduct(product);
             navigate("../product", { state: product });
@@ -33,12 +33,14 @@ function Product({ product, createProduct, channelName }) {
               ? product["Name"].substring(0, 30) + "..."
               : product["Name"].substring(0, 30)}
           </p>
-        </a>
+        </section>
         <ul className="mt-4 mb-6 w-[70%]">
           <li>
-            <p className="font-bold">{product["Price"]} per unit</p>
+            <p className="font-bold">
+              {product["Price"]} {t("per_unit")}
+            </p>
           </li>
-          <li>
+          {/* <li>
             <p className="text-[#717171] text-sm ">
               From{" "}
               <Link
@@ -48,20 +50,20 @@ function Product({ product, createProduct, channelName }) {
                 {product["Channel"] ?? product["channelName"]}
               </Link>
             </p>
-          </li>
+          </li> */}
           <li>
             <p className="text-[#717171] text-sm">{`${new Date(
               product["date"]
             ).toDateString()}`}</p>
           </li>
         </ul>
-        <i className="self-end cursor-pointer text-[#545454] border-[#b5b5b5] hover:text-main mb-4 inline-flex justify-center items-center w-[28px] h-[28px] rounded-full border-[0.5px] hover:border-main  active:text-main active:border-main ">
+        {/* <i className="self-end cursor-pointer text-[#545454] border-[#b5b5b5] hover:text-main mb-4 inline-flex justify-center items-center w-[28px] h-[28px] rounded-full border-[0.5px] hover:border-main  active:text-main active:border-main ">
           <FavoriteBorderIcon
             sx={{
               fontSize: "18px",
             }}
           />
-        </i>
+        </i> */}
       </section>
     </div>
   );

@@ -1,4 +1,4 @@
-const apiId = 17131847;
-const apiHash = "ae9177439fcdbe7acdbad43085592501";
+const apiId = parseInt(process.env.REACT_APP_apiID);
+const apiHash = process.env.REACT_APP_apiHash;
 
 module.exports = { apiId, apiHash };

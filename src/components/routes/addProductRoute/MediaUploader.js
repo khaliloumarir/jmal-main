@@ -1,9 +1,8 @@
-import React, { useCallback, useMemo, useState } from "react";
+import React, { useCallback, useMemo } from "react";
 import { useDropzone } from "react-dropzone";
 const Buffer = require("buffer/").Buffer;
 export default function MediaUploader({ media, videos, setVideos, setMedia }) {
   function addMedia(item, state, setState) {
-    console.log("item", item);
     const tempHolder = state;
     tempHolder.push(item);
     setState([...tempHolder]);
@@ -14,8 +13,6 @@ export default function MediaUploader({ media, videos, setVideos, setMedia }) {
       acceptedFiles.forEach((item) => {
         const type = item.type.split("/")[0];
         const reader = new FileReader();
-        reader.onabort = () => console.log("file reading was aborted");
-        reader.onerror = () => console.log("file reading has failed");
 
         const metadata = item.name.split(".");
         reader.onload = () => {
@@ -37,7 +34,7 @@ export default function MediaUploader({ media, videos, setVideos, setMedia }) {
         reader.readAsArrayBuffer(item);
       });
     },
-    [media]
+    [media, setMedia]
   );
   const { getRootProps, getInputProps, isFocused, isDragAccept, isDragReject } =
     useDropzone({ onDrop, accept: "image/*" });

@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import Sizes from "../components/routes/addProductRoute/Sizes";
 import MediaUploader from "../components/routes/addProductRoute/MediaUploader";
 import { connect } from "react-redux";
-import { createClient, postChannelName, createSession } from "../actions";
+import { createClient, postChannelName } from "../actions";
 //feed back and loading
 import CircularProgress from "@mui/material/CircularProgress";
 import Snackbar from "@mui/material/Snackbar";
@@ -15,10 +15,12 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import { addProductSchema } from "../validations";
 
 import { useTranslation } from "react-i18next";
+import { Api } from "telegram";
+import { CustomFile } from "telegram/client/uploads";
 function AddProduct(props) {
   const { t } = useTranslation();
   const formOptions = { resolver: yupResolver(addProductSchema) };
-  const { register, handleSubmit, reset, formState } = useForm(formOptions);
+  const { register, handleSubmit, formState } = useForm(formOptions);
   const [channels, setChannels] = useState([]);
   const [mediaError, setMediaError] = useState("");
   useEffect(() => {
@@ -26,7 +28,7 @@ function AddProduct(props) {
       async function getChannels() {
         try {
           const result = await props.client.invoke(
-            new window.telegram.Api.channels.GetAdminedPublicChannels({
+            new Api.channels.GetAdminedPublicChannels({
               byLocation: false,
               checkLimit: false,
             })
@@ -36,7 +38,6 @@ function AddProduct(props) {
             channelsList.push(channel.username);
           });
           if (channelsList.length) {
-            changeInput("channelName", channelsList[0]);
             setChannels(channelsList);
           }
         } catch (err) {
@@ -83,17 +84,15 @@ function AddProduct(props) {
     setSentDone(false);
     const files = [];
     media.forEach((item) => {
-      const { CustomFile } = window.telegram.client.uploads;
       files.push(
         new CustomFile(`item.name.${item.ext}`, item.size, "", item.data)
       );
     });
-    videos.forEach((item) => {
-      const { CustomFile } = window.telegram.client.uploads;
-      files.push(
-        new CustomFile(`item.name.${item.ext}`, item.size, "", item.data)
-      );
-    });
+    // videos.forEach((item) => {
+    //   files.push(
+    //     new CustomFile(`item.name.${item.ext}`, item.size, "", item.data)
+    //   );
+    // });
     //caption needs to be the same format as a normal message would be
     let finalMessage = "";
 
@@ -163,8 +162,9 @@ function AddProduct(props) {
     }
   }
   const [categoryError, setCategoryError] = useState("");
+  const [channelNameError, setChannelNameError] = useState("");
   function submitToChannel(data) {
-    if (media.length && inputs.Category.length) {
+    if (media.length && inputs.Category.length && inputs.channelName.length) {
       sendThroughClient();
     } else {
       if (!media.length) {
@@ -174,6 +174,9 @@ function AddProduct(props) {
         //update media error message for below the input
         setMediaError("There must be at least 1 media");
         //focus on the media
+      }
+      if (!inputs.channelName.length) {
+        setChannelNameError(t("channelName_required"));
       }
       if (!inputs.Category.length) {
         setCategoryError("Choose a category");
@@ -197,7 +200,7 @@ function AddProduct(props) {
         setMediaError("");
       }
     }
-  }, [media]);
+  }, [media, mediaError?.length]);
   function render() {
     if (props.isClientLoaded) {
       return (
@@ -261,7 +264,6 @@ function AddProduct(props) {
                   className={`w-full border-[0.5px] ${errorifyField(
                     "Price"
                   )} rounded-md py-2 px-4`}
-                  type="number"
                 />
                 {renderErrorMessage("Price")}
               </section>
@@ -270,12 +272,12 @@ function AddProduct(props) {
               <p className="headerElement py-4">{t("quantity")}</p>
               <section className="mb-4">
                 <input
+                  {...register("Quantity")}
                   value={inputs.Quantity}
                   onChange={(e) => {
                     handleText(e, "Quantity", true);
                   }}
                   className={`w-full border-[0.5px] border-[#C3C8BF] rounded-md py-2 px-4  `}
-                  type="number"
                 />
               </section>
 
@@ -288,6 +290,7 @@ function AddProduct(props) {
             <p className="headerElement py-4">{t("minimum_quantity")}</p>
             <section className="mb-4">
               <input
+                {...register("Minimum")}
                 value={inputs.Minimum}
                 onChange={(e) => {
                   handleText(e, "Minimum", true);
@@ -404,6 +407,7 @@ function AddProduct(props) {
                     />
                   </span>
                   <img
+                    alt={`product number ${index}`}
                     src={`data:image/png;base64,${item.data.toString(
                       "base64"
                     )}`}
@@ -429,7 +433,7 @@ function AddProduct(props) {
             );
           })}
           <p className="error min-h-[50px]">{mediaError}</p>
-
+          <p className="error min-h-[50px]">{channelNameError}</p>
           <p className="error min-h-[50px]">{categoryError}</p>
           <button className="self-end min-w-[174px] min-h-[55px]">
             {sentDone ? (
@@ -449,7 +453,7 @@ function AddProduct(props) {
     }
   }
   return (
-    <>
+    <div className="px-2 sm:px-4 lg:px-8">
       <NewHeader />
       <div className="flex flex-col p-2 sm:mx-24 sm:my-24 sm:Addshadow sm:p-8 sm:rounded-md">
         {render()}
@@ -469,7 +473,7 @@ function AddProduct(props) {
           {error.length ? error : t("product_added_success")}
         </Alert>
       </Snackbar>
-    </>
+    </div>
   );
 }
 

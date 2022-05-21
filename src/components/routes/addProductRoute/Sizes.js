@@ -23,7 +23,7 @@ export default function Sizes({ changeData, sizeTitle, sizeName }) {
   useEffect(() => {
     const finalSizes = [];
     inputs.forEach((element) => {
-      for (const [key, value] of Object.entries(element)) {
+      for (const value of Object.entries(element)[1]) {
         if (value) {
           finalSizes.push(value.toUpperCase());
         }
@@ -46,7 +46,7 @@ export default function Sizes({ changeData, sizeTitle, sizeName }) {
                 changeInput={changeInput}
               />
               {/* <SizeField field="Quantity" reference="quantity" value={item.quantity} index={index} changeInput={changeInput} /> */}
-              {!(index == inputs.length - 1) && (
+              {!(index === inputs.length - 1) && (
                 <i
                   onClick={() => {
                     if (inputs.length <= 1) {
