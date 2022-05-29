@@ -30,7 +30,7 @@ function NewHeader(props) {
 
       <nav className="basis-2/3 flex justify-between items-center">
         <Link to="/addproduct">
-          <button className="bg-[#ffffff00] m-0 px-2 py-1 normal-case rounded-full border-main border-2">
+          <button className="bg-[#ffffff00] m-0 px-2 py-1 normal-case rounded-full border-main border-2 drop-shadow-none">
             <p>{t("add_product_page")}</p>
           </button>
         </Link>

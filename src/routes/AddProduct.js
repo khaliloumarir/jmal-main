@@ -274,7 +274,6 @@ function AddProduct(props) {
               <p className="headerElement py-4">{t("quantity")}</p>
               <section className="mb-4">
                 <input
-                  {...register("Quantity")}
                   value={inputs.Quantity}
                   onChange={(e) => {
                     handleText(e, "Quantity", true);
@@ -292,7 +291,6 @@ function AddProduct(props) {
             <p className="headerElement py-4">{t("minimum_quantity")}</p>
             <section className="mb-4">
               <input
-                {...register("Minimum")}
                 value={inputs.Minimum}
                 onChange={(e) => {
                   handleText(e, "Minimum", true);

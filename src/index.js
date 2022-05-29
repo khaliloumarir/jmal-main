@@ -20,7 +20,7 @@ import { PersistGate } from "redux-persist/integration/react";
 import storage from "redux-persist/lib/storage";
 import { createFirestoreInstance, getFirestore } from "redux-firestore";
 import { QueryClientProvider, QueryClient } from "react-query";
-import { ReactQueryDevtools } from "react-query/devtools";
+
 import i18n from "i18next";
 import { initReactI18next } from "react-i18next";
 import LanguageDetector from "i18next-browser-languagedetector";
@@ -103,7 +103,6 @@ ReactDOM.render(
               />
             </Routes>
           </BrowserRouter>
-          <ReactQueryDevtools initialIsOpen={false} position="bottom-right" />
         </QueryClientProvider>
       </ReactReduxFirebaseProvider>
     </PersistGate>
