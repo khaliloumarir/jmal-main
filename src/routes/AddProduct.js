@@ -119,6 +119,7 @@ function AddProduct(props) {
       }
     }
     try {
+      console.log("files", files);
       await props.client.sendFile(inputs.channelName, {
         file: files,
         caption: finalMessage,
@@ -141,6 +142,7 @@ function AddProduct(props) {
       setMedia([]);
       setError("");
     } catch (err) {
+      console.log(err);
       setError(err.message);
     }
     setSentDone(true);

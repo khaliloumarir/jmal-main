@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { connect } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { apiId, apiHash } from "../config";
-import { createClient, createSession } from "../actions";
+import { createClient, createSession, addUserToTg } from "../actions";
 import PhoneInput from "react-phone-number-input";
 import Snackbar from "@mui/material/Snackbar";
 import Alert from "@mui/material/Alert";
@@ -110,6 +110,8 @@ function TelegramLogin(props) {
                 );
                 props.createSession(client.session.save());
                 props.createClient(client);
+                // const user = await props.client.getMe();
+                // props.addUserToTg(user.phone);
                 navigate("/");
               } catch (err) {
                 if (err.errorMessage === "PHONE_CODE_INVALID") {
@@ -166,6 +168,8 @@ function TelegramLogin(props) {
                 console.log("authorization state:", authorization);
                 props.createSession(client.session.save());
                 props.createClient(client);
+                // const user = await props.client.getMe();
+                // props.addUserToTg(user.phone);
                 navigate("../");
               } catch (err) {
                 if (err.errorMessage === "PASSWORD_HASH_INVALID") {
@@ -231,6 +235,13 @@ function mapToState(state) {
     product: state.product,
   };
 }
-export default connect(mapToState, { createClient, createSession })(
-  TelegramLogin
-);
+
+function mapDispatchToProps(dispatch) {
+  return {
+    addUserToTg: (uid) => dispatch(addUserToTg(uid)),
+    createClient: (client) => dispatch(createClient(client)),
+    createSession: (session) => dispatch(createSession(session)),
+  };
+}
+
+export default connect(mapToState, mapDispatchToProps)(TelegramLogin);
