@@ -23,7 +23,7 @@ export default function Sizes({ changeData, sizeTitle, sizeName }) {
   useEffect(() => {
     const finalSizes = [];
     inputs.forEach((element) => {
-      for (const value of Object.entries(element)[1]) {
+      for (const [key, value] of Object.entries(element)) {
         if (value) {
           finalSizes.push(value.toUpperCase());
         }

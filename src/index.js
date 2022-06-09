@@ -20,7 +20,6 @@ import { PersistGate } from "redux-persist/integration/react";
 import storage from "redux-persist/lib/storage";
 import { createFirestoreInstance, getFirestore } from "redux-firestore";
 import { QueryClientProvider, QueryClient } from "react-query";
-
 import i18n from "i18next";
 import { initReactI18next } from "react-i18next";
 import LanguageDetector from "i18next-browser-languagedetector";

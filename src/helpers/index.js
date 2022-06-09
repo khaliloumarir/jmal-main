@@ -141,7 +141,7 @@ export async function getGroups(params, props, newBatch) {
   try {
     const result = await props.client?.invoke(
       new Api.messages.GetHistory({
-        peer: params.channel ? params.channel : "santochi1337",
+        peer: params.channel ? params.channel : "sellaprod",
         offsetId: 0,
         offsetDate: 0,
         addOffset: nextBatch,

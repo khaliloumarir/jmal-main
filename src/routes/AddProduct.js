@@ -69,15 +69,14 @@ function AddProduct(props) {
   const [videos, setVideos] = useState([]);
   const [inputs, setInputs] = useState({
     channelName: "",
-    Name: "Adidas trousers",
+    Name: "",
     Price: 0,
     Quantity: 0,
     Minimum: 0,
     Category: "",
-    Contact: "xxxxxxxx",
+    Contact: "",
     Sizes: "",
-    Description:
-      "incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in v",
+    Description: "",
   });
 
   async function sendThroughClient() {
@@ -128,14 +127,13 @@ function AddProduct(props) {
       //post the channel name to the firestore
       props.postChannelName(inputs.channelName, user.phone);
       const channel = inputs.channelName;
+      console.log(inputs);
       setInputs({
-        channelName: channel,
+        ...inputs,
         Name: "",
         Price: 0,
         Quantity: 0,
         Minimum: 0,
-        Category: "",
-        Contact: "",
         Sizes: "",
         Description: "",
       });

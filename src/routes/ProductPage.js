@@ -1,12 +1,13 @@
 import Carousel from "react-multi-carousel";
 import { connect } from "react-redux";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import validator from "validator";
 import NewHeader from "../components/NewHeader";
 import Dialog from "@mui/material/Dialog";
 import "react-multi-carousel/lib/styles.css";
 import { useTranslation } from "react-i18next";
+import Linkify from "react-linkify";
 //,product:state.product
 const Buffer = require("buffer/").Buffer;
 function ProductPage({ product }) {
@@ -19,6 +20,9 @@ function ProductPage({ product }) {
   const handleContactDialogClose = () => {
     setOpenContactDialog(!openContactDialog);
   };
+  useEffect(() => {
+    console.log(currentProduct);
+  }, []);
 
   const responsive = {
     superLargeDesktop: {
@@ -39,6 +43,7 @@ function ProductPage({ product }) {
       items: 4,
     },
   };
+
   return (
     <div className="px-2 sm:px-4 lg:px-8">
       <NewHeader />
@@ -65,7 +70,7 @@ function ProductPage({ product }) {
                 <p className="text-xl">{t("sizes")}</p>
               )}
 
-              <ul className="grid sm:grid-cols-6 grid-cols-4  gap-2">
+              <ul className="grid sm:grid-cols-4 grid-cols-4  gap-2">
                 {currentProduct.Sizes?.split(",").map((size) => {
                   return (
                     <li className="bg-[#cecece] text-center  p-2">
@@ -171,10 +176,10 @@ function ProductPage({ product }) {
           </p>
         </div>
         <Dialog onClose={handleContactDialogClose} open={openContactDialog}>
-          <section className="w-[200px] h-[100px] flex justify-center items-center">
-            <p>
+          <section className="w-min-[200px] h-[100px] flex justify-center items-center px-4">
+            <Linkify>
               {t("contact_seller")} : {currentProduct.Contact}
-            </p>
+            </Linkify>
           </section>
         </Dialog>
       </div>

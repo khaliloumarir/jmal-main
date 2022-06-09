@@ -72,6 +72,9 @@ code {
     letter-spacing: 0.5px;
     color: #363636;
   }
+  a {
+    @apply text-[#3377FF];
+  }
 }
 
 @layer utilities {

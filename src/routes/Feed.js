@@ -25,7 +25,7 @@ function Feed(props) {
     const { productsList, nextBatch } = await validMessages(
       algorithmResult,
       props,
-      params.channel ? params.channel : "santochi1337"
+      params.channel ? params.channel : "sellaprod"
     );
 
     return { productsList, nextBatch };
@@ -39,7 +39,7 @@ function Feed(props) {
     isFetching,
     isFetchingNextPage,
   } = useInfiniteQuery(
-    `${params.channel ? params.channel : "santochi1337"}`,
+    `${params.channel ? params.channel : "sellaprod"}`,
     fetchProducts,
     {
       enabled: false,
@@ -139,7 +139,7 @@ function Feed(props) {
 
           setChannelData({ ...data });
         }
-        if (params.channel !== "santochi1337") {
+        if (params.channel !== "sellaprod") {
           getChannelData();
         }
 
