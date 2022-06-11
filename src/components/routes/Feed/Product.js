@@ -2,12 +2,13 @@ import { connect } from "react-redux";
 import { createProduct } from "../../../actions";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+
 function Product({ product, createProduct, channelName }) {
   const navigate = useNavigate();
   const { t } = useTranslation();
 
   return (
-    <div className="flex sm:flex-col border-[#EAEAEA] border-[0.5px] px-2  py-2 ">
+    <div className="flex sm:flex-col border-[#EAEAEA] border-[0.5px] px-2  py-2 max-h-[400px] rounded-md ">
       <section
         onClick={() => {
           createProduct(product);
@@ -28,7 +29,7 @@ function Product({ product, createProduct, channelName }) {
           }}
           className="hover:underline cursor-pointer"
         >
-          <p className="font-light">
+          <p className="font-bold">
             {product["Name"].length >= 30
               ? product["Name"].substring(0, 30) + "..."
               : product["Name"].substring(0, 30)}
@@ -36,7 +37,7 @@ function Product({ product, createProduct, channelName }) {
         </section>
         <ul className="mt-4 mb-6 w-[70%]">
           <li>
-            <p className="font-bold">
+            <p className="">
               {product["Price"]} {t("per_unit")}
             </p>
           </li>

@@ -7,6 +7,7 @@ import { createSession } from "../actions";
 import Snackbar from "@mui/material/Snackbar";
 import Alert from "@mui/material/Alert";
 import { Api } from "telegram";
+import AddIcon from "@mui/icons-material/Add";
 function NewHeader(props) {
   const { t } = useTranslation();
   const [openSnackBar, setOpenSnackBar] = useState(false);
@@ -30,13 +31,17 @@ function NewHeader(props) {
 
       <nav className="basis-2/3 flex justify-between items-center">
         <Link to="/addproduct">
-          <button className="bg-[#ffffff00] m-0 px-2 py-1 normal-case rounded-full border-main border-2 drop-shadow-none">
-            <p>{t("add_product_page")}</p>
-          </button>
+          {/* <button className="bg-[#ffffff00] hover:opacity-75 active:opacity-100 m-0 px-2 py-1 normal-case rounded-full border-main border-2 drop-shadow-none">
+            
+          </button> */}
+          <p className="font-bold hover:bg-[#ececea] px-2 py-1 active:bg-[#dbdbd9] rounded-md ">
+            <AddIcon />
+            {t("add_product_page")}
+          </p>
         </Link>
 
         <i
-          className="text-[#FF0000] cursor-pointer"
+          className=" bg-[#ececea] cursor-pointer hover:opacity-75 active:opacity-100  rounded-full p-1"
           onClick={async () => {
             try {
               await props.client.invoke(new Api.auth.LogOut({}));

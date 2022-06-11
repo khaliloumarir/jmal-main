@@ -103,7 +103,7 @@ function AddProduct(props) {
           }
         } else if (typeof value === "number") {
           if (value) {
-            finalMessage += `${key}: ${value}${key === "Price" ? " dh" : ""}\n`;
+            finalMessage += `${key}: ${value}${key === "Price" ? "dh" : ""}\n`;
           }
         } else {
           //arrays,etc...
