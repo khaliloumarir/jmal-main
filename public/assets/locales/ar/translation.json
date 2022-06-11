@@ -36,5 +36,10 @@
   "PHONE_CODE_INVALID": "رمز التحقق خطء المرجو اعادة التدخيل",
   "PASSWORD_HASH_INVALID": "الرمز السري غير صحيح,المرجو اعادة المحاولة",
   "404_page": "مسار غير موجود المرجو الرجوع",
-  "channel_not_supported": "هدا البائع غير منخرط مع صلة"
+  "channel_not_supported": "هدا البائع غير منخرط مع صلة",
+  "Fashion": "ملابس",
+  "Accessories": "اكسسوارات",
+  "Home_gadgets_and_electronics": "الأدوات المنزلية والإلكترونيات",
+  "add_media": "أضف صورة",
+  "drop_file": "أو أاسقط الصور في المربع"
 }

@@ -1,5 +1,6 @@
 import React, { useCallback, useMemo } from "react";
 import { useDropzone } from "react-dropzone";
+import { useTranslation } from "react-i18next";
 const Buffer = require("buffer/").Buffer;
 export default function MediaUploader({ media, videos, setVideos, setMedia }) {
   function addMedia(item, state, setState) {
@@ -7,6 +8,7 @@ export default function MediaUploader({ media, videos, setVideos, setMedia }) {
     tempHolder.push(item);
     setState([...tempHolder]);
   }
+  const { t } = useTranslation();
   const onDrop = useCallback(
     (acceptedFiles) => {
       // Do something with the files
@@ -73,8 +75,8 @@ export default function MediaUploader({ media, videos, setVideos, setMedia }) {
       <div {...getRootProps({ style })}>
         <input {...getInputProps()} />
         <section className="flex flex-col items-center text-center py-4">
-          <p className="text-[#0A64B7] headerElement ">Add Media</p>
-          <p className="overlineElement">Or drop file to upload</p>
+          <p className="text-[#0A64B7] headerElement ">{t("add_media")}</p>
+          <p className="overlineElement">{t("drop_file")}</p>
         </section>
       </div>
     </div>

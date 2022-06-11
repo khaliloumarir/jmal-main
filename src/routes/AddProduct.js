@@ -324,15 +324,20 @@ function AddProduct(props) {
                 <option value="" disabled selected hidden>
                   {t("choose_category")}
                 </option>
-                {["Fashion", "Accessories", "Home gadgets and Electronics"].map(
-                  (categoryName) => {
-                    return (
-                      <option key={categoryName} value={categoryName}>
-                        {categoryName}
-                      </option>
-                    );
-                  }
-                )}
+                {[
+                  { value: "Fashion", name: t("Fashion") },
+                  { value: "Accessories", name: t("Accessories") },
+                  {
+                    value: "Home gadgets and Electronics",
+                    name: t("Home_gadgets_and_electronics"),
+                  },
+                ].map(({ name, value }) => {
+                  return (
+                    <option key={value} value={value}>
+                      {name}
+                    </option>
+                  );
+                })}
               </select>
             </section>
             <hr className="border-[#C3C8BF]" />

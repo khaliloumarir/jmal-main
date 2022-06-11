@@ -34,5 +34,7 @@
   "per_unit": "per unit",
   "PHONE_CODE_INVALID": "رمز التحقق خطء المرجو اعادة التدخيل",
   "PASSWORD_HASH_INVALID": "الرمز السري غير صحيح,المرجو اعادة المحاولة",
-  "channel_not_supported": "هدا البائع غير منخرط مع صلة"
+  "channel_not_supported": "هدا البائع غير منخرط مع صلة",
+  "add_media": "Add Media",
+  "drop_file": "Or drop file to upload"
 }

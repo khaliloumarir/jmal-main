@@ -360,26 +360,31 @@ function Feed(props) {
               "aria-labelledby": "basic-button",
             }}
           >
-            {["Fashion", "Accessories", "Home gadgets and Electronics"].map(
-              (categoryName) => {
-                return (
-                  <MenuItem
-                    key={categoryName}
-                    onClick={() => {
-                      setCategory(categoryName);
-                      handleClose();
-                    }}
-                  >
-                    {category === categoryName && (
-                      <ListItemIcon>
-                        <Check />
-                      </ListItemIcon>
-                    )}
-                    <p>{categoryName} </p>
-                  </MenuItem>
-                );
-              }
-            )}
+            {[
+              { value: "Fashion", name: t("Fashion") },
+              { value: "Accessories", name: t("Accessories") },
+              {
+                value: "Home gadgets and Electronics",
+                name: t("Home_gadgets_and_electronics"),
+              },
+            ].map(({ name, value }) => {
+              return (
+                <MenuItem
+                  key={value}
+                  onClick={() => {
+                    setCategory(value);
+                    handleClose();
+                  }}
+                >
+                  {category === value && (
+                    <ListItemIcon>
+                      <Check />
+                    </ListItemIcon>
+                  )}
+                  <p>{name} </p>
+                </MenuItem>
+              );
+            })}
           </Menu>
         </div>
         <div>
