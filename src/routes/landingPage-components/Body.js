@@ -29,7 +29,7 @@ function Body() {
         <img
           alt="e-commerce products mock up"
           className=""
-          src="https://i.postimg.cc/ZK1hmpwr/mock-Up-min.png"
+          src="https://i.postimg.cc/BQSXSYfb/Mock-up.png"
         />
       </section>
       <section className="flex justify-center flex-col items-center space-y-4 text-center">

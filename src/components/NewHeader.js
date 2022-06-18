@@ -25,7 +25,7 @@ function NewHeader(props) {
         <img
           alt="sella logo"
           src={"https://i.postimg.cc/Y9qwKpkv/Logo-1.png"}
-          className="h-[40px] "
+          className="h-[40px]  "
         />
       </Link>
 

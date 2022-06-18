@@ -8,7 +8,7 @@ function Hero() {
         <img
           alt="sella logo"
           src={"https://i.postimg.cc/Y9qwKpkv/Logo-1.png"}
-          className="h-[40px] "
+          className="h-[40px] max-w-[120px]  "
         />
         <Link to="/telegram">
           <button className="hover:opacity-75 active:opacity-100">
