@@ -2,7 +2,6 @@ import React, { useState, useEffect, useRef, useCallback } from "react";
 import { connect } from "react-redux";
 import { createClient } from "../actions";
 import Product from "../components/routes/Feed/Product";
-import "../components/routes/Feed/feed.css";
 import { useParams } from "react-router-dom";
 import CircularProgress from "@mui/material/CircularProgress";
 import { useInfiniteQuery } from "react-query";

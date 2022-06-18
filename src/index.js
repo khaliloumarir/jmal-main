@@ -7,7 +7,6 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import AddProduct from "./routes/AddProduct";
 import TelegramLogin from "./routes/TelegramLogin";
 import Feed from "./routes/Feed";
-import AuthIsRequired from "./components/AuthIsLoaded";
 import ProductPage from "./routes/ProductPage";
 import { Provider } from "react-redux";
 import { createStore, applyMiddleware } from "redux";
@@ -25,6 +24,7 @@ import { initReactI18next } from "react-i18next";
 import LanguageDetector from "i18next-browser-languagedetector";
 import HttpApi from "i18next-http-backend";
 import Page404 from "./routes/Page404";
+const AuthIsRequired = React.lazy(() => import("./components/AuthIsLoaded"));
 //i18
 i18n
   .use(initReactI18next)
@@ -78,27 +78,33 @@ ReactDOM.render(
               <Route
                 path="addproduct"
                 element={
-                  <AuthIsRequired>
-                    <AddProduct />
-                  </AuthIsRequired>
+                  <React.Suspense fallback={<></>}>
+                    <AuthIsRequired>
+                      <AddProduct />
+                    </AuthIsRequired>
+                  </React.Suspense>
                 }
               />
               <Route path="telegram" element={<TelegramLogin />} />
               <Route
                 path=":channel"
                 element={
-                  <AuthIsRequired>
-                    <Feed />
-                  </AuthIsRequired>
+                  <React.Suspense fallback={<></>}>
+                    <AuthIsRequired>
+                      <Feed />
+                    </AuthIsRequired>
+                  </React.Suspense>
                 }
               />
               <Route path="*" element={<Page404 />} />
               <Route
                 path="product"
                 element={
-                  <AuthIsRequired>
-                    <ProductPage />
-                  </AuthIsRequired>
+                  <React.Suspense fallback={<></>}>
+                    <AuthIsRequired>
+                      <ProductPage />
+                    </AuthIsRequired>
+                  </React.Suspense>
                 }
               />
             </Routes>

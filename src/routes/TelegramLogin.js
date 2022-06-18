@@ -27,6 +27,16 @@ function TelegramLogin(props) {
 
   const [openSnackBar, setOpenSnackBar] = useState(false);
   const [signInError, setSignInError] = useState("");
+  const [successfulLogin, setSuccessfulLogin] = useState(false);
+  useEffect(() => {
+    async function addUser() {
+      const user = await props.client.getMe();
+      props.addUserToTg(user.phone);
+    }
+    if (successfulLogin) {
+      addUser();
+    }
+  }, [successfulLogin]);
   const handleClose = (event, reason) => {
     if (reason === "clickaway") {
       return;
@@ -110,8 +120,7 @@ function TelegramLogin(props) {
                 );
                 props.createSession(client.session.save());
                 props.createClient(client);
-                // const user = await props.client.getMe();
-                // props.addUserToTg(user.phone);
+                setSuccessfulLogin(true);
                 navigate("/");
               } catch (err) {
                 if (err.errorMessage === "PHONE_CODE_INVALID") {
@@ -168,8 +177,8 @@ function TelegramLogin(props) {
                 console.log("authorization state:", authorization);
                 props.createSession(client.session.save());
                 props.createClient(client);
-                // const user = await props.client.getMe();
-                // props.addUserToTg(user.phone);
+
+                setSuccessfulLogin(true);
                 navigate("../");
               } catch (err) {
                 if (err.errorMessage === "PASSWORD_HASH_INVALID") {

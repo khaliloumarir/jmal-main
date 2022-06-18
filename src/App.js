@@ -1,14 +1,19 @@
-import Hero from "./routes/landingPage-components/Hero";
-import Body from "./routes/landingPage-components/Body";
-import FAQGroup from "./routes/landingPage-components/FAQ";
-import Footer from "./routes/landingPage-components/Footer";
 import { connect } from "react-redux";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { checkConnection } from "./helpers";
 import { useNavigate } from "react-router-dom";
 import Feed from "./routes/Feed";
-import AuthIsRequired from "./components/AuthIsLoaded";
+
 import { createClient, createSession } from "./actions";
+const AuthIsRequired = React.lazy(() => import("./components/AuthIsLoaded"));
+const Hero = React.lazy(() => import("./routes/landingPage-components/Hero"));
+const Body = React.lazy(() => import("./routes/landingPage-components/Body"));
+const FAQGroup = React.lazy(() =>
+  import("./routes/landingPage-components/FAQ")
+);
+const Footer = React.lazy(() =>
+  import("./routes/landingPage-components/Footer")
+);
 function App(props) {
   const navigate = useNavigate();
   const [isClientLoaded, setIsClientLoaded] = useState(false);
@@ -19,20 +24,30 @@ function App(props) {
     if (isClientLoaded) {
       if (props.client?.checkAuthorization()) {
         return (
-          <AuthIsRequired>
-            <Feed />
-          </AuthIsRequired>
+          <React.Suspense fallback={<></>}>
+            <AuthIsRequired>
+              <Feed />
+            </AuthIsRequired>
+          </React.Suspense>
         );
       } else {
         return (
           <div className="">
             <div className="bg-[#C9E6E3] sm:px-16 px-3">
-              <Hero />
+              <React.Suspense fallback={<></>}>
+                <Hero />
+              </React.Suspense>
             </div>
             <div className="sm:px-16 px-3 ">
-              <Body />
-              <FAQGroup />
-              <Footer />
+              <React.Suspense fallback={<></>}>
+                <Body />
+              </React.Suspense>
+              <React.Suspense fallback={<></>}>
+                <FAQGroup />
+              </React.Suspense>
+              <React.Suspense fallback={<></>}>
+                <Footer />
+              </React.Suspense>
             </div>
           </div>
         );

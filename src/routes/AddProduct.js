@@ -8,7 +8,7 @@ import CircularProgress from "@mui/material/CircularProgress";
 import Snackbar from "@mui/material/Snackbar";
 import Alert from "@mui/material/Alert";
 import CloseIcon from "@mui/icons-material/Close";
-import validator from "validator";
+import isNumeric from "validator/es/lib/isNumeric";
 import NewHeader from "../components/NewHeader";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
@@ -154,7 +154,7 @@ function AddProduct(props) {
   }
   function handleText(e, reference, number = false) {
     if (number) {
-      if (validator.isNumeric(e.target.value)) {
+      if (isNumeric(e.target.value)) {
         changeInput(reference, parseInt(e.target.value));
       }
     } else {

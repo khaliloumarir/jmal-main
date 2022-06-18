@@ -1,5 +1,5 @@
 import { apiHash, apiId } from "../config";
-import validator from "validator";
+import trim from "validator/es/lib/trim";
 import { Api, TelegramClient, sessions } from "telegram";
 export async function checkConnection(props, navigate, setIsClientLoaded) {
   if (!props.client) {
@@ -219,8 +219,7 @@ export class ProductClass {
       const value = detail.split(key)[detail.split(key).length - 1].split(":")[
         detail.split(key).length - 1
       ];
-      this.product[key] =
-        typeof value === "string" ? validator.trim(value) : value;
+      this.product[key] = typeof value === "string" ? trim(value) : value;
     }
   }
   addProperty(keyName, value) {
@@ -233,8 +232,7 @@ export class ProductClass {
         //Product has that detail
         const keyName = element.split(":")[0];
         const value = detail.split(element).join("");
-        this.product[keyName] =
-          typeof value === "string" ? validator.trim(value) : value;
+        this.product[keyName] = typeof value === "string" ? trim(value) : value;
       }
     }
   }

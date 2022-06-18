@@ -2,7 +2,7 @@ import Carousel from "react-multi-carousel";
 import { connect } from "react-redux";
 import { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
-import validator from "validator";
+import trim from "validator/es/lib/trim";
 import NewHeader from "../components/NewHeader";
 import Dialog from "@mui/material/Dialog";
 import "react-multi-carousel/lib/styles.css";
@@ -108,9 +108,7 @@ function ProductPage({ product }) {
             </section>
             <section className="flex items-center">
               <p className=" font-bold ">{t("price")}:</p>
-              <p className="ml-2  option">
-                {validator.trim(currentProduct.Price)}
-              </p>
+              <p className="ml-2  option">{trim(currentProduct.Price)}</p>
             </section>
             {/* <section className="flex justify-between">
                         <div className="flex flex-col items-center">
