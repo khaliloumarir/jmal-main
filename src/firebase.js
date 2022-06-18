@@ -1,15 +1,22 @@
-import firebase from 'firebase/app';
-import "firebase/firestore"
-import "firebase/auth"
-const firebaseConfig = ({
-  apiKey: "AIzaSyCUDnK9SxDVRxnKOvzmaJl_-S11r3pjckM",
-  authDomain: "auth-development-b55c9.firebaseapp.com",
-  projectId: "auth-development-b55c9",
-  storageBucket: "auth-development-b55c9.appspot.com",
-  messagingSenderId: "651476036360",
-  appId: "1:651476036360:web:4310e909f725aff5c5dabd"
-})
+import firebase from "firebase/app";
+import "firebase/firestore";
+import "firebase/auth";
+const firebaseConfig = {
+  apiKey: "AIzaSyD4MkZjf_CzvvD1fREYnkkPFtdj0a6zxn0",
+
+  authDomain: "sella-telegram.firebaseapp.com",
+
+  projectId: "sella-telegram",
+
+  storageBucket: "sella-telegram.appspot.com",
+
+  messagingSenderId: "58261241631",
+
+  appId: "1:58261241631:web:d95a081e0568129e007a2a",
+
+  measurementId: "G-FCE0Y44MRF",
+};
 
 firebase.initializeApp(firebaseConfig);
-firebase.firestore()
-export default firebase
+firebase.firestore();
+export default firebase;

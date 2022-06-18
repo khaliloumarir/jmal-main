@@ -2,37 +2,33 @@ import { useEffect, useState } from "react";
 import Sizes from "../components/routes/addProductRoute/Sizes";
 import MediaUploader from "../components/routes/addProductRoute/MediaUploader";
 import { connect } from "react-redux";
-import { createClient, postChannelName, createSession } from "../actions";
-import { useNavigate } from "react-router-dom";
-import { checkConnection, errors } from "../helpers";
+import { createClient, postChannelName } from "../actions";
 //feed back and loading
 import CircularProgress from "@mui/material/CircularProgress";
 import Snackbar from "@mui/material/Snackbar";
 import Alert from "@mui/material/Alert";
 import CloseIcon from "@mui/icons-material/Close";
 import validator from "validator";
-
+import NewHeader from "../components/NewHeader";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { addProductSchema } from "../validations";
+
+import { useTranslation } from "react-i18next";
+import { Api } from "telegram";
+import { CustomFile } from "telegram/client/uploads";
 function AddProduct(props) {
+  const { t } = useTranslation();
   const formOptions = { resolver: yupResolver(addProductSchema) };
-  const { register, handleSubmit, reset, formState } = useForm(formOptions);
-  const navigate = useNavigate();
-  const [isClientLoaded, setIsClientLoaded] = useState(false);
+  const { register, handleSubmit, formState } = useForm(formOptions);
   const [channels, setChannels] = useState([]);
   const [mediaError, setMediaError] = useState("");
-
   useEffect(() => {
-    checkConnection(props, navigate, setIsClientLoaded);
-  }, []);
-
-  useEffect(() => {
-    if (isClientLoaded) {
+    if (props.isClientLoaded) {
       async function getChannels() {
         try {
           const result = await props.client.invoke(
-            new window.telegram.Api.channels.GetAdminedPublicChannels({
+            new Api.channels.GetAdminedPublicChannels({
               byLocation: false,
               checkLimit: false,
             })
@@ -42,16 +38,16 @@ function AddProduct(props) {
             channelsList.push(channel.username);
           });
           if (channelsList.length) {
-            changeInput("channelName", channelsList[0]);
             setChannels(channelsList);
           }
         } catch (err) {
-          console.log(err);
+          setError(err.message);
+          setOpenSnackBar(true);
         }
       }
       getChannels();
     }
-  }, [isClientLoaded]);
+  }, [props.isClientLoaded]);
 
   //snack bar
   const [openSnackBar, setOpenSnackBar] = useState(false);
@@ -73,32 +69,29 @@ function AddProduct(props) {
   const [videos, setVideos] = useState([]);
   const [inputs, setInputs] = useState({
     channelName: "",
-    Name: "Adidas trousers",
+    Name: "",
     Price: 0,
     Quantity: 0,
     Minimum: 0,
-    Category: "pants",
-    Contact: "xxxxxxxx",
+    Category: "",
+    Contact: "",
     Sizes: "",
-    Description:
-      "incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in v",
+    Description: "",
   });
 
   async function sendThroughClient() {
     setSentDone(false);
     const files = [];
     media.forEach((item) => {
-      const { CustomFile } = window.telegram.client.uploads;
       files.push(
         new CustomFile(`item.name.${item.ext}`, item.size, "", item.data)
       );
     });
-    videos.forEach((item) => {
-      const { CustomFile } = window.telegram.client.uploads;
-      files.push(
-        new CustomFile(`item.name.${item.ext}`, item.size, "", item.data)
-      );
-    });
+    // videos.forEach((item) => {
+    //   files.push(
+    //     new CustomFile(`item.name.${item.ext}`, item.size, "", item.data)
+    //   );
+    // });
     //caption needs to be the same format as a normal message would be
     let finalMessage = "";
 
@@ -110,7 +103,7 @@ function AddProduct(props) {
           }
         } else if (typeof value === "number") {
           if (value) {
-            finalMessage += `${key}: ${value}${key === "Price" ? " dh" : ""}\n`;
+            finalMessage += `${key}: ${value}${key === "Price" ? "dh" : ""}\n`;
           }
         } else {
           //arrays,etc...
@@ -125,6 +118,7 @@ function AddProduct(props) {
       }
     }
     try {
+      console.log("files", files);
       await props.client.sendFile(inputs.channelName, {
         file: files,
         caption: finalMessage,
@@ -133,20 +127,20 @@ function AddProduct(props) {
       //post the channel name to the firestore
       props.postChannelName(inputs.channelName, user.phone);
       const channel = inputs.channelName;
+      console.log(inputs);
       setInputs({
-        channelName: channel,
+        ...inputs,
         Name: "",
         Price: 0,
         Quantity: 0,
         Minimum: 0,
-        Category: "",
-        Contact: "",
         Sizes: "",
         Description: "",
       });
       setMedia([]);
       setError("");
     } catch (err) {
+      console.log(err);
       setError(err.message);
     }
     setSentDone(true);
@@ -167,16 +161,27 @@ function AddProduct(props) {
       changeInput(reference, e.target.value);
     }
   }
+  const [categoryError, setCategoryError] = useState("");
+  const [channelNameError, setChannelNameError] = useState("");
   function submitToChannel(data) {
-    if (media.length) {
+    if (media.length && inputs.Category.length && inputs.channelName.length) {
       sendThroughClient();
     } else {
-      //throw snackbar error
-      setError("No media files exist");
+      if (!media.length) {
+        //throw snackbar error
+        setError("No media files exist");
+        setSentDone(true);
+        //update media error message for below the input
+        setMediaError("There must be at least 1 media");
+        //focus on the media
+      }
+      if (!inputs.channelName.length) {
+        setChannelNameError(t("channelName_required"));
+      }
+      if (!inputs.Category.length) {
+        setCategoryError("Choose a category");
+      }
       setSentDone(true);
-      //update media error message for below the input
-      setMediaError("There must be at least 1 media");
-      //focus on the media
     }
   }
   function errorifyField(key) {
@@ -195,32 +200,41 @@ function AddProduct(props) {
         setMediaError("");
       }
     }
-  }, [media]);
+  }, [media, mediaError?.length]);
   function render() {
-    if (isClientLoaded) {
+    if (props.isClientLoaded) {
       return (
         <form onSubmit={handleSubmit(submitToChannel)}>
-          <h5 className="self-center addProduct">Add product to channel</h5>
+          <h5 className="self-center addProduct">
+            {t("add_product_to_channel")}
+          </h5>
           <hr className="border-[#C3C8BF]  my-4" />
           {/* ===================Product details=============== */}
           {/* ==============Channel Name============ */}
           <div>
-            <p className="headerElement py-4">Channel Name</p>
+            <p className="headerElement py-4">{t("channel_name")}</p>
 
             <select
+              className="px-2 py-4 rounded-md border-[1px] border-[#d8d8d8] hover:border-[#b3b3b3] focus:border-[#b3b3b3]"
               onChange={(e) => {
                 changeInput("channelName", e.target.value);
               }}
-              name="cars"
-              id="cars"
+              required
             >
+              <option value="" disabled selected hidden>
+                {t("choose_channel")}
+              </option>
               {channels.map((channel) => {
-                return <option value={channel}>{channel}</option>;
+                return (
+                  <option key={channel} value={channel}>
+                    {channel}
+                  </option>
+                );
               })}
             </select>
           </div>
           <div>
-            <p className="headerElement py-4">Product Name</p>
+            <p className="headerElement py-4">{t("product_name")}</p>
             <section className="mb-4">
               <input
                 {...register("Name")}
@@ -239,7 +253,7 @@ function AddProduct(props) {
           {/* ===================Price and quantity=============== */}
           <div className="grid grid-cols-2 gap-10">
             <div>
-              <p className="headerElement py-4">Price</p>
+              <p className="headerElement py-4">{t("price")}</p>
               <section className="mb-4">
                 <input
                   {...register("Price")}
@@ -250,13 +264,12 @@ function AddProduct(props) {
                   className={`w-full border-[0.5px] ${errorifyField(
                     "Price"
                   )} rounded-md py-2 px-4`}
-                  type="number"
                 />
                 {renderErrorMessage("Price")}
               </section>
             </div>
             <div>
-              <p className="headerElement py-4">Quantity</p>
+              <p className="headerElement py-4">{t("quantity")}</p>
               <section className="mb-4">
                 <input
                   value={inputs.Quantity}
@@ -264,7 +277,6 @@ function AddProduct(props) {
                     handleText(e, "Quantity", true);
                   }}
                   className={`w-full border-[0.5px] border-[#C3C8BF] rounded-md py-2 px-4  `}
-                  type="number"
                 />
               </section>
 
@@ -274,7 +286,7 @@ function AddProduct(props) {
           <hr className="border-[#C3C8BF] " />
           {/* ===================Minimum Quantity=============== */}
           <div>
-            <p className="headerElement py-4">Minimum Quantity</p>
+            <p className="headerElement py-4">{t("minimum_quantity")}</p>
             <section className="mb-4">
               <input
                 value={inputs.Minimum}
@@ -289,10 +301,10 @@ function AddProduct(props) {
           </div>
           {/* ===================Category=============== */}
           <div>
-            <p className="headerElement py-4">Category</p>
+            <p className="headerElement py-4">{t("category")}</p>
             <section className="mb-4">
-              <input
-                {...register("Category")}
+              {/* <input
+                
                 value={inputs.Category}
                 onChange={(e) => {
                   handleText(e, "Category");
@@ -301,17 +313,47 @@ function AddProduct(props) {
                   "Category"
                 )} border-[0.5px] border-[#C3C8BF] rounded-md py-2 px-4  `}
               />
-              {renderErrorMessage("Category")}
+              {renderErrorMessage("Category")} */}
+              <select
+                className="px-2 py-4 rounded-md border-[1px] border-[#d8d8d8] hover:border-[#b3b3b3] focus:border-[#b3b3b3] "
+                onChange={(e) => {
+                  changeInput("Category", e.target.value);
+                }}
+                required
+              >
+                <option value="" disabled selected hidden>
+                  {t("choose_category")}
+                </option>
+                {[
+                  { value: "Fashion", name: t("Fashion") },
+                  { value: "Accessories", name: t("Accessories") },
+                  {
+                    value: "Home gadgets and Electronics",
+                    name: t("Home_gadgets_and_electronics"),
+                  },
+                ].map(({ name, value }) => {
+                  return (
+                    <option key={value} value={value}>
+                      {name}
+                    </option>
+                  );
+                })}
+              </select>
             </section>
             <hr className="border-[#C3C8BF]" />
           </div>
           {/* ===================Sizes Fields=============== */}
-          <Sizes sizes={inputs.sizes} changeData={changeInput} />
+          <Sizes
+            sizeTitle={t("sizes")}
+            sizes={inputs.sizes}
+            changeData={changeInput}
+            sizeName={t("size")}
+          />
           {/* ===================Promotions Fields=============== */}
           {/* <Promotions /> */}
           {/* ===================Message Field=============== */}
           <div>
-            <p className="headerElement py-4">Description</p>
+            <p className="headerElement py-4">{t("description")}</p>
             <section className="mb-4">
               <textarea
                 value={inputs.Description}
@@ -327,7 +369,7 @@ function AddProduct(props) {
           </div>
           {/* ===================Contact Link=============== */}
           <div>
-            <p className="headerElement py-4">Contact Link</p>
+            <p className="headerElement py-4">{t("contact_link")}</p>
             <section className="mb-4">
               <input
                 {...register("Contact")}
@@ -348,7 +390,11 @@ function AddProduct(props) {
             {media.map((item, index) => {
               //item={data:bufferData,size:BufferSize}
               return (
-                <div className="relative ">
+                //FIXME: add uuid
+                <div
+                  key={Math.floor(Math.random() * item.size)}
+                  className="relative "
+                >
                   <span
                     onClick={() => {
                       const pictures = media.filter(
@@ -364,6 +410,7 @@ function AddProduct(props) {
                     />
                   </span>
                   <img
+                    alt={`product number ${index}`}
                     src={`data:image/png;base64,${item.data.toString(
                       "base64"
                     )}`}
@@ -389,14 +436,11 @@ function AddProduct(props) {
             );
           })}
           <p className="error min-h-[50px]">{mediaError}</p>
-          <button
-            onClick={() => {
-              //"self-end py-3 px-3"
-            }}
-            className="self-end min-w-[174px] min-h-[55px]"
-          >
+          <p className="error min-h-[50px]">{channelNameError}</p>
+          <p className="error min-h-[50px]">{categoryError}</p>
+          <button className="self-end min-w-[174px] min-h-[55px]">
             {sentDone ? (
-              "Send to channel"
+              t("send_to_channel")
             ) : (
               <CircularProgress size={28} color="inherit" />
             )}
@@ -412,7 +456,8 @@ function AddProduct(props) {
     }
   }
   return (
-    <>
+    <div className="px-2 sm:px-4 lg:px-8">
+      <NewHeader />
       <div className="flex flex-col p-2 sm:mx-24 sm:my-24 sm:Addshadow sm:p-8 sm:rounded-md">
         {render()}
       </div>
@@ -428,10 +473,10 @@ function AddProduct(props) {
           severity={error.length ? "error" : "success"}
           sx={{ width: "100%" }}
         >
-          {error.length ? error : "Message has been sent successfully"}
+          {error.length ? error : t("product_added_success")}
         </Alert>
       </Snackbar>
-    </>
+    </div>
   );
 }
 

@@ -5,13 +5,12 @@ import App from "./App";
 import reportWebVitals from "./reportWebVitals";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import AddProduct from "./routes/AddProduct";
-import DemandProduct from "./routes/DemandProduct";
 import TelegramLogin from "./routes/TelegramLogin";
 import Feed from "./routes/Feed";
+import AuthIsRequired from "./components/AuthIsLoaded";
 import ProductPage from "./routes/ProductPage";
-import Authentication from "./routes/Authentication";
 import { Provider } from "react-redux";
-import { createStore, applyMiddleware, compose } from "redux";
+import { createStore, applyMiddleware } from "redux";
 import combinedReducers from "./reducers";
 import thunk from "redux-thunk";
 import { ReactReduxFirebaseProvider, getFirebase } from "react-redux-firebase";
@@ -21,8 +20,31 @@ import { PersistGate } from "redux-persist/integration/react";
 import storage from "redux-persist/lib/storage";
 import { createFirestoreInstance, getFirestore } from "redux-firestore";
 import { QueryClientProvider, QueryClient } from "react-query";
-import { ReactQueryDevtools } from "react-query/devtools";
-import Example from "./routes/Example";
+import i18n from "i18next";
+import { initReactI18next } from "react-i18next";
+import LanguageDetector from "i18next-browser-languagedetector";
+import HttpApi from "i18next-http-backend";
+import Page404 from "./routes/Page404";
+//i18
+i18n
+  .use(initReactI18next)
+  .use(LanguageDetector)
+  .use(HttpApi)
+  .init({
+    fallbackLng: "ar",
+    supportedLngs: ["ar", "en", "fr"],
+    detection: {
+      order: ["htmlTag", "localStorage", "cookie", "path", "subdomain"],
+      caches: ["localStorage", "cookie"],
+    },
+    backend: {
+      loadPath: "/assets/locales/{{lng}}/translation.json",
+    },
+    react: {
+      useSuspense: false,
+    },
+  });
+
 const persistConfig = {
   key: "root",
   storage,
@@ -52,18 +74,35 @@ ReactDOM.render(
         <QueryClientProvider client={queryClient}>
           <BrowserRouter>
             <Routes>
-              <Route path="/example" element={<Example />} />
               <Route path="/" element={<App />} />
-              <Route path="addproduct" element={<AddProduct />} />
-              <Route path="demandproduct" element={<DemandProduct />} />
+              <Route
+                path="addproduct"
+                element={
+                  <AuthIsRequired>
+                    <AddProduct />
+                  </AuthIsRequired>
+                }
+              />
               <Route path="telegram" element={<TelegramLogin />} />
-              <Route path="authentication" element={<Authentication />} />
-              {/* TODO: Change the path=/ to contain a component that checks auth and sends to the right paths telegramLogin or feed or login then telegramLogin then feed or feed right away */}
-              <Route path=":channel" element={<Feed />} />
-              <Route path="product" element={<ProductPage />} />
+              <Route
+                path=":channel"
+                element={
+                  <AuthIsRequired>
+                    <Feed />
+                  </AuthIsRequired>
+                }
+              />
+              <Route path="*" element={<Page404 />} />
+              <Route
+                path="product"
+                element={
+                  <AuthIsRequired>
+                    <ProductPage />
+                  </AuthIsRequired>
+                }
+              />
             </Routes>
           </BrowserRouter>
-          <ReactQueryDevtools initialIsOpen={false} position="bottom-right" />
         </QueryClientProvider>
       </ReactReduxFirebaseProvider>
     </PersistGate>

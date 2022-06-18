@@ -23,9 +23,9 @@ code {
     font-family: Roboto;
   }
   button {
-    @apply font-medium text-[#FFFFFF] leading-[16px] tracking-[1.25px] uppercase sm:px-4 sm:py-3  px-2 rounded-sm py-2 bg-main;
+    @apply font-medium text-[#FFFFFF] leading-[16px] tracking-[1.25px] uppercase sm:px-4 sm:py-3  px-2 rounded-sm py-2 bg-main drop-shadow-lg;
     font-size: 14px;
-    box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+    /* box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25); */
   }
   p,
   a,
@@ -38,34 +38,42 @@ code {
     @apply text-[#2B3239];
   }
   h1 {
-    @apply font-light lg:lg-h1 md:md-h1 h1 leading-[56px] tracking-[0px] md:leading-[72px] md:tracking-[-0.5px] lg:leading-[112px] lg:tracking-[-1.5px];
+    @apply lg:text-5xl text-3xl font-bold;
+    line-height: 72px;
+    color: #363636;
   }
-  h6 {
-    font-family: Roboto;
-    font-style: normal;
-    font-weight: 500;
-    font-size: 20px;
-    line-height: 24px;
-    /* identical to box height, or 120% */
+  h2 {
+    @apply lg:text-2xl text-xl leading-[48px];
+    line-height: 48px;
+    color: #363636;
+  }
+  h3 {
+    @apply font-bold text-3xl leading-[48px];
+    line-height: 48px;
 
-    letter-spacing: 0.15px;
+    color: #363636;
   }
   h4 {
-    font-style: normal;
-    font-weight: normal;
-    font-size: 34px;
-    line-height: 36px;
+    font-weight: 700;
+    font-size: 24px;
+    line-height: 37px;
+    color: #363636;
+  }
+  h5 {
+    @apply sm:font-medium font-semibold sm:text-xl text-lg leading-[30px];
+
+    /* identical to box height, or 80% */
+    letter-spacing: 1.25px;
   }
   p {
-    /* Body 1 */
-    font-family: Roboto;
-    font-style: normal;
-    font-weight: normal;
+    font-weight: 400;
     font-size: 16px;
-    line-height: 24px;
-    /* or 150% */
-
+    line-height: 33px;
     letter-spacing: 0.5px;
+    color: #363636;
+  }
+  a {
+    @apply text-[#3377FF];
   }
 }
 

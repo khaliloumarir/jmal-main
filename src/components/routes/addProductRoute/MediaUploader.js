@@ -1,21 +1,20 @@
-import React, { useCallback, useMemo, useState } from "react";
+import React, { useCallback, useMemo } from "react";
 import { useDropzone } from "react-dropzone";
+import { useTranslation } from "react-i18next";
 const Buffer = require("buffer/").Buffer;
 export default function MediaUploader({ media, videos, setVideos, setMedia }) {
   function addMedia(item, state, setState) {
-    console.log("item", item);
     const tempHolder = state;
     tempHolder.push(item);
     setState([...tempHolder]);
   }
+  const { t } = useTranslation();
   const onDrop = useCallback(
     (acceptedFiles) => {
       // Do something with the files
       acceptedFiles.forEach((item) => {
         const type = item.type.split("/")[0];
         const reader = new FileReader();
-        reader.onabort = () => console.log("file reading was aborted");
-        reader.onerror = () => console.log("file reading has failed");
 
         const metadata = item.name.split(".");
         reader.onload = () => {
@@ -37,7 +36,7 @@ export default function MediaUploader({ media, videos, setVideos, setMedia }) {
         reader.readAsArrayBuffer(item);
       });
     },
-    [media]
+    [media, setMedia]
   );
   const { getRootProps, getInputProps, isFocused, isDragAccept, isDragReject } =
     useDropzone({ onDrop, accept: "image/*" });
@@ -76,8 +75,8 @@ export default function MediaUploader({ media, videos, setVideos, setMedia }) {
       <div {...getRootProps({ style })}>
         <input {...getInputProps()} />
         <section className="flex flex-col items-center text-center py-4">
-          <p className="text-[#0A64B7] headerElement ">Add Media</p>
-          <p className="overlineElement">Or drop file to upload</p>
+          <p className="text-[#0A64B7] headerElement ">{t("add_media")}</p>
+          <p className="overlineElement">{t("drop_file")}</p>
         </section>
       </div>
     </div>
