@@ -15,11 +15,14 @@ export async function checkConnection(props, navigate, setIsClientLoaded) {
         setIsClientLoaded(true);
       } else {
         props.createSession("");
-        navigate("/");
+        console.log(window.location.pathname);
+        navigate("/telegram");
         setIsClientLoaded(true);
       }
     } else {
-      navigate("/");
+      if (!(window.location.pathname === "/")) {
+        navigate("/telegram");
+      }
       setIsClientLoaded(true);
     }
   } else {

@@ -118,7 +118,6 @@ function AddProduct(props) {
       }
     }
     try {
-      console.log("files", files);
       await props.client.sendFile(inputs.channelName, {
         file: files,
         caption: finalMessage,
@@ -127,7 +126,6 @@ function AddProduct(props) {
       //post the channel name to the firestore
       props.postChannelName(inputs.channelName, user.phone);
       const channel = inputs.channelName;
-      console.log(inputs);
       setInputs({
         ...inputs,
         Name: "",
@@ -140,7 +138,6 @@ function AddProduct(props) {
       setMedia([]);
       setError("");
     } catch (err) {
-      console.log(err);
       setError(err.message);
     }
     setSentDone(true);

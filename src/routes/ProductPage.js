@@ -1,6 +1,6 @@
 import Carousel from "react-multi-carousel";
 import { connect } from "react-redux";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useLocation } from "react-router-dom";
 import trim from "validator/es/lib/trim";
 import NewHeader from "../components/NewHeader";
@@ -8,6 +8,7 @@ import Dialog from "@mui/material/Dialog";
 import "react-multi-carousel/lib/styles.css";
 import { useTranslation } from "react-i18next";
 import Linkify from "react-linkify";
+import { v4 as uuidv4 } from "uuid";
 //,product:state.product
 const Buffer = require("buffer/").Buffer;
 function ProductPage({ product }) {
@@ -20,9 +21,6 @@ function ProductPage({ product }) {
   const handleContactDialogClose = () => {
     setOpenContactDialog(!openContactDialog);
   };
-  useEffect(() => {
-    console.log(currentProduct);
-  }, []);
 
   const responsive = {
     superLargeDesktop: {
@@ -73,7 +71,10 @@ function ProductPage({ product }) {
               <ul className="grid sm:grid-cols-4 grid-cols-4  gap-2">
                 {currentProduct.Sizes?.split(",").map((size) => {
                   return (
-                    <li className="bg-[#cecece] text-center  p-2">
+                    <li
+                      key={uuidv4()}
+                      className="bg-[#cecece] text-center  p-2"
+                    >
                       <p>{size}</p>
                     </li>
                   );
@@ -175,9 +176,14 @@ function ProductPage({ product }) {
         </div>
         <Dialog onClose={handleContactDialogClose} open={openContactDialog}>
           <section className="w-min-[200px] h-[100px] flex justify-center items-center px-4">
-            <Linkify>
-              {t("contact_seller")} : {currentProduct.Contact}
-            </Linkify>
+            <p>{t("contact_seller")} :</p>
+            <a
+              href={currentProduct.Contact}
+              rel="noopener noreferrer"
+              target="_blank"
+            >
+              {currentProduct.Contact}
+            </a>
           </section>
         </Dialog>
       </div>

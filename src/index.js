@@ -1,13 +1,10 @@
 import React from "react";
 import ReactDOM from "react-dom";
 import "./index.css";
-import App from "./App";
+
 import reportWebVitals from "./reportWebVitals";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import AddProduct from "./routes/AddProduct";
-import TelegramLogin from "./routes/TelegramLogin";
 import Feed from "./routes/Feed";
-import ProductPage from "./routes/ProductPage";
 import { Provider } from "react-redux";
 import { createStore, applyMiddleware } from "redux";
 import combinedReducers from "./reducers";
@@ -23,8 +20,12 @@ import i18n from "i18next";
 import { initReactI18next } from "react-i18next";
 import LanguageDetector from "i18next-browser-languagedetector";
 import HttpApi from "i18next-http-backend";
-import Page404 from "./routes/Page404";
+import AddProduct from "./routes/AddProduct";
 const AuthIsRequired = React.lazy(() => import("./components/AuthIsLoaded"));
+const Page404 = React.lazy(() => import("./routes/Page404"));
+const TelegramLogin = React.lazy(() => import("./routes/TelegramLogin"));
+const ProductPage = React.lazy(() => import("./routes/ProductPage"));
+const App = React.lazy(() => import("./App"));
 //i18
 i18n
   .use(initReactI18next)
@@ -74,7 +75,14 @@ ReactDOM.render(
         <QueryClientProvider client={queryClient}>
           <BrowserRouter>
             <Routes>
-              <Route path="/" element={<App />} />
+              <Route
+                path="/"
+                element={
+                  <React.Suspense fallback={<></>}>
+                    <App />
+                  </React.Suspense>
+                }
+              />
               <Route
                 path="addproduct"
                 element={
@@ -85,7 +93,14 @@ ReactDOM.render(
                   </React.Suspense>
                 }
               />
-              <Route path="telegram" element={<TelegramLogin />} />
+              <Route
+                path="telegram"
+                element={
+                  <React.Suspense fallback={<></>}>
+                    <TelegramLogin />
+                  </React.Suspense>
+                }
+              />
               <Route
                 path=":channel"
                 element={
@@ -96,13 +111,22 @@ ReactDOM.render(
                   </React.Suspense>
                 }
               />
-              <Route path="*" element={<Page404 />} />
+              <Route
+                path="*"
+                element={
+                  <React.Suspense fallback={<></>}>
+                    <Page404 />
+                  </React.Suspense>
+                }
+              />
               <Route
                 path="product"
                 element={
                   <React.Suspense fallback={<></>}>
                     <AuthIsRequired>
-                      <ProductPage />
+                      <React.Suspense fallback={<></>}>
+                        <ProductPage />
+                      </React.Suspense>
                     </AuthIsRequired>
                   </React.Suspense>
                 }

@@ -48,15 +48,11 @@ export const postChannelName = (channelName, uid) => {
 //TODO:add the below
 export const addUserToTg = (uid) => {
   return async (dispatch, getState, { getFirestore, getFirebase }) => {
-    console.log("saving user to database...");
     const fireStore = await getFirestore();
     try {
       await fireStore.collection("users").doc(uid).set({
         created_at: new Date(),
       });
-      console.log("successfully added user");
-    } catch (err) {
-      console.log(err);
-    }
+    } catch (err) {}
   };
 };

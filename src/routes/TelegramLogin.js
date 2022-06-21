@@ -8,13 +8,34 @@ import Snackbar from "@mui/material/Snackbar";
 import Alert from "@mui/material/Alert";
 import { useTranslation } from "react-i18next";
 import CircularProgress from "@mui/material/CircularProgress";
-import "react-phone-number-input/style.css";
 import { Api, TelegramClient, sessions } from "telegram";
 import { computeCheck } from "telegram/Password";
+import "react-phone-number-input/style.css";
 function TelegramLogin(props) {
   const { t } = useTranslation();
+
   useEffect(() => {
-    createSession("");
+    async function redirectIfConnected() {
+      if (props.session.length) {
+        try {
+          const session = new sessions.StringSession(props.session);
+          const client = new TelegramClient(session, apiId, apiHash, {
+            connectionRetries: 5,
+          });
+
+          await client.connect();
+          if (await client.checkAuthorization()) {
+            props.createClient(client);
+            navigate("../");
+          } else {
+            props.createSession("");
+          }
+        } catch (err) {
+          navigate("../");
+        }
+      }
+    }
+    redirectIfConnected();
   }, []);
   const navigate = useNavigate();
   //"first"==0 && "second"==1
@@ -87,7 +108,7 @@ function TelegramLogin(props) {
               onChange={setNumber}
               countries={["MA"]}
               defaultCountry={"MA"}
-              className="w-full border-[0.5px] border-[#C3C8BF] rounded-md py-2 px-4"
+              className="w-full border-[0.5px] border-[#C3C8BF] rounded-md p-4"
               labels={{ MA: "Maroc" }}
             />
             <button>
@@ -121,7 +142,7 @@ function TelegramLogin(props) {
                 props.createSession(client.session.save());
                 props.createClient(client);
                 setSuccessfulLogin(true);
-                navigate("/");
+                navigate(-1);
               } catch (err) {
                 if (err.errorMessage === "PHONE_CODE_INVALID") {
                   setSignInError(t("PHONE_CODE_INVALID"));
@@ -136,7 +157,7 @@ function TelegramLogin(props) {
           >
             <p>{t("insert_verfication_code")}</p>
             <input
-              className={`w-full border-[0.5px] border-[#C3C8BF] rounded-md py-2 px-4  `}
+              className="w-full border-[0.5px] border-[#C3C8BF] rounded-md p-4"
               value={code}
               onChange={(e) => setCode(e.target.value)}
               placeholder={t("insert_verfication_code")}
@@ -174,12 +195,11 @@ function TelegramLogin(props) {
                     password: passwordSRPCheck,
                   })
                 );
-                console.log("authorization state:", authorization);
                 props.createSession(client.session.save());
                 props.createClient(client);
 
                 setSuccessfulLogin(true);
-                navigate("../");
+                navigate(-1);
               } catch (err) {
                 if (err.errorMessage === "PASSWORD_HASH_INVALID") {
                   setSignInError(t("PASSWORD_HASH_INVALID"));
@@ -191,7 +211,7 @@ function TelegramLogin(props) {
           >
             <p>{t("insert_password")}</p>
             <input
-              className={`w-full border-[0.5px] border-[#C3C8BF] rounded-md py-2 px-4  `}
+              className="w-full border-[0.5px] border-[#C3C8BF] rounded-md p-4"
               value={password}
               type="password"
               onChange={(e) => setPassword(e.target.value)}
