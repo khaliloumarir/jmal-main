@@ -106,7 +106,6 @@ function TelegramLogin(props) {
               placeholder={t("enter_phone_number")}
               value={number}
               onChange={setNumber}
-              countries={["MA"]}
               defaultCountry={"MA"}
               className="w-full border-[0.5px] border-[#C3C8BF] rounded-md p-4"
               labels={{ MA: "Maroc" }}

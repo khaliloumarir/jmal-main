@@ -1,6 +1,9 @@
 {
   "add_product_to_channel": "Add product to your channel ",
   "add_product_page": "Add product",
+  "join_us": "Join us",
+  "header": "Buy your product from the wholesaler that suits you",
+  "subheader": "Stay in touch with the latest products from the same wholesaler you've always been following ",
   "channel_name": "Channel Name",
   "product_name": "Product Name",
   "price": "Price",
@@ -36,5 +39,15 @@
   "PASSWORD_HASH_INVALID": "الرمز السري غير صحيح,المرجو اعادة المحاولة",
   "channel_not_supported": "هدا البائع غير منخرط مع صلة",
   "add_media": "Add Media",
-  "drop_file": "Or drop file to upload"
+  "drop_file": "Or drop file to upload",
+  "first_arg": "Find all wholesellers products in Telegram in one place",
+  "first_arg_comment": "First Search engine as SaaS to provide Products from Telegram channels in a structured and meaningful way",
+  "second_arg": "Looking for a product to sell ? You want to start COD business or e-commerce ?",
+  "second_arg_comment": "This is your change to start and improve your business, Sella minimize the time you spend going through all the messages from your Telegram wholesaler. Get your winning product before your competitor does!",
+  "third_arg": "Wholesaler ? You have a telegram channel ?",
+  "third_arg_comment": "Register Now and provide your clients with the latest products in a structured manner, your products will never go out of date or get forgotten.",
+  "enter_phone_number": "enter phone number",
+  "Fashion": "Fashion",
+  "Accessories": "Accessories",
+  "Home_gadgets_and_electronics": "Home gadgets & Electronics"
 }

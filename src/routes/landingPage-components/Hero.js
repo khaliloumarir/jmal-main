@@ -1,7 +1,9 @@
 import WholeSaleSVG from "./WholeSale.svg";
 import { Link } from "react-router-dom";
 import "react-phone-number-input/style.css";
+import { useTranslation } from "react-i18next";
 function Hero() {
+  const { t } = useTranslation();
   return (
     <div>
       <nav className="flex items-center justify-between py-4">
@@ -12,22 +14,20 @@ function Hero() {
         />
         <Link to="/telegram">
           <button className="hover:opacity-75 active:opacity-100">
-            تسجل معنا
+            {t("join_us")}
           </button>
         </Link>
       </nav>
       <div className="flex justify-center items-center py-8 ">
         <section className=" sm:space-y-8 ">
           {/* Writings and buttons */}
-          <h1>ﺗﻘﺪا اﻟﺒﺮودوي دﻳﺎﻟﻚ ﻣﻦ ﻋﻨﺪ اﻟﺠﻤﺎل ﻟﻲ ﻳﻨﺎﺳﺒﻚ</h1>
-          <h2 className="">
-            حل مرن و مبتكر لتحقيق المزيد. ابق على اطلاع بأحدث المنتجات.أحسن شبكة
-            ديال تجار الجملة في المغرب
-          </h2>
+
+          <h1>{t("header")}</h1>
+          <h2 className="">{t("subheader")}</h2>
           <section className="my-2 flex">
             <Link to="/telegram">
               <button className="hover:opacity-75 active:opacity-100">
-                تسجل معنا
+                {t("join_us")}
               </button>
             </Link>
           </section>

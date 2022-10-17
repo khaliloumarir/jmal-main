@@ -37,7 +37,7 @@ function JoinUs() {
 function Footer() {
   return (
     <div>
-      <JoinUs />
+      {/* <JoinUs /> */}
       <div className="mt-4">
         <hr />
         <section className="flex items-center justify-between mt-4 sm:flex-row flex-col ">

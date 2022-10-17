@@ -32,7 +32,7 @@ function FAQ({ question, answer }) {
 function FAQGroup() {
   return (
     <div className="flex flex-col items-center">
-      <h3>FAQ</h3>
+      {/* <h3>FAQ</h3>
       <div className="grid sm:grid-cols-2 gap-4">
         {QandAs.map((element, index) => {
           return (
@@ -43,7 +43,7 @@ function FAQGroup() {
             />
           );
         })}
-      </div>
+      </div> */}
     </div>
   );
 }
